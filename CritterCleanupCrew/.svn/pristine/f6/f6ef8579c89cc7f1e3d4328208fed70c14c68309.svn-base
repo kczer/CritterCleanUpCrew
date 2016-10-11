@@ -1,0 +1,67 @@
+package players;
+
+import java.util.ArrayList;
+
+import enitities.PlayerCharacter;
+import model.Game;
+import model.GameState;
+import moves.Move;
+
+public class AIPlayer implements Player{
+	private PlayerCharacter underControl;
+	private Game game;
+	private String name;
+	
+	public AIPlayer(Game playedGame, String name){
+		game= playedGame;
+		this.name = name;
+	}
+	
+	public AIPlayer(Game playedGame, String name, PlayerCharacter controlled){
+		game= playedGame;
+		this.name = name;
+		underControl = controlled;
+	}
+
+
+	/**
+	 * Returns calculated next move.
+	 */
+	public Move getNextMove(GameState gameState) {
+		return null;
+	}
+
+	/**
+	 * Returns generic AI identifier.
+	 */
+	public String getID() {
+		return name;
+	}
+	
+	/**
+	 * Calculates a move for the given GameState.
+	 * It uses heuristics and move skipping for smoother
+	 * transitions.
+	 */
+	private Move calculateMove(GameState gameState){
+		return null;
+	}
+
+	@Override
+	public void setNextMove(Move nextMove) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getPlayerCharacterControlled() {
+		return underControl.getName();
+	}
+
+	@Override
+	public boolean setPlayerCharacterToControl(String nameOfCharacter) {
+		underControl = game.getState().getPlayerCharacters().get(nameOfCharacter);
+		return true;
+	}
+
+}

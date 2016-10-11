@@ -1,0 +1,63 @@
+package buttons;
+
+import java.awt.Graphics;
+
+import java.awt.event.ActionEvent;
+
+
+
+
+import model.Position;
+import enitities.PlayerCharacter;
+import players.Player;
+import views.InformationView;
+import views.InteractionView;
+import views.ToolboxView;
+
+public class CharacterButton extends GameButton {
+	private String charName;
+	
+	public CharacterButton(ToolboxView tbv, String charName) {
+		super(tbv);
+		this.charName = charName;
+		//setText(charName); //set text
+		addActionListener(this); //listen to itself
+	}
+	
+	public void actionPerformed(ActionEvent event){
+		super.actionPerformed(event); //for refocus and others
+		//does a switch of charcters and players.
+		
+		Player p1 = toolboxView.getMainView().getCurrentGame().getPlayers().get("HumanPlayer"); //first player
+		PlayerCharacter c2 = toolboxView.getMainView().getCurrentGame().getState().getPlayerCharacters().get(charName); //second (target) character
+		
+		Player p2 = c2.getCurrentController(); //second player
+		PlayerCharacter c1 = toolboxView.getMainView().getCurrentGame().getState()
+						.getPlayerCharacters().get(p1.getPlayerCharacterControlled()); //first character (current)
+		
+		try{ //FIXME, for crashes when no players exist
+			p2.setPlayerCharacterToControl(c1.getName());//tell 2 to control 1
+			c1.setCurrentController(p2); //tell it who's in control
+		}catch(NullPointerException e){e.printStackTrace();}
+		p1.setPlayerCharacterToControl(c2.getName()); //give character to player
+		c2.setCurrentController(p1); //tell who's controlling
+		
+		Position center = c2.getPosition();
+		InteractionView iView = (InteractionView)toolboxView.getMainView().getSubviews().get("Interaction");
+		iView.centerAtPosition(center); //center view at the guy
+		((InformationView)toolboxView.getMainView().getSubviews().get("Information")).setShownActionable(c2); //set to show the new character
+		
+		p2.setNextMove(p1.getTargetMove()); //give the AI your last move
+		p1.setNextMove(null); //stop moving
+	}
+	
+	//override to paint button images
+	public void paintComponent(Graphics g){
+		super.paintComponent(g); //super call
+		g.drawImage(toolboxView.getMainView().getImages().get(charName), //get the image
+				 0, 0, //corner at 0 0 
+				 getWidth(), getHeight(), //end at sizes of button
+				 null); //no observer
+	}
+
+}

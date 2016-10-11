@@ -1,0 +1,43 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import enitities.*;
+import model.*;
+import listeners.*;
+
+public class ListenerTests {
+
+	@Test
+	public void CounterMouseListener_Test() {
+		CounterMouseListener e = new CounterMouseListener();
+		assertTrue(e.equals(null));
+	}
+
+	@Test
+	public void InformationMouseListener_Test() {
+		InformationMouseListener e = new InformationMouseListener();
+		assertTrue(e.equals(null));
+	}
+	
+//	@Test
+//	public void InteractionMouseListener_Test() {
+//		InteractionMouseListener e = new InteractionMouseListener();
+//		assertTrue(e.equals(null));
+//	}
+	
+	@Test
+	public void MinimapMouseListener_Test() {
+		MinimapMouseListener e = new MinimapMouseListener();
+		assertTrue(e.equals(null));
+	}
+	
+	@Test
+	public void ToolboxMouseListener_Test() {
+		ToolboxMouseListener e = new ToolboxMouseListener();
+		assertTrue(e.equals(null));
+	}
+
+}

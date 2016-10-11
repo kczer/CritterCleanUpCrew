@@ -1,0 +1,50 @@
+package settables;
+
+import java.util.Map;
+
+
+
+import model.Block;
+import model.GameState;
+import model.Position;
+
+public class WhiteOak extends Settable {
+	
+	protected static Map<String, Double> parameters; //where parameters are kept.
+	private boolean changedHappiness; //if it has done its happiness impact yet.
+	private int totalTicks;
+	
+	public WhiteOak(){
+		if (parameters==null){ //if parameters have not been loaded
+			parameters = Settable.loadParameters("data/White Oak.txt"); //load them.
+		}
+		cost = parameters.get("Cost").intValue();
+		changedHappiness = false;
+		hitPoints = parameters.get("MaxHP");
+		totalTicks=0;
+		timeOfNextAction = getParameters().get("SpawnTime"); //initial non-random spawn time
+		nativeness = parameters.get("Native").intValue();
+	}
+
+	@Override
+	public String getName() {
+		return "White Oak";
+	}
+
+	@Override
+	public int getCycleTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	public double getHappiness(){
+		return parameters.get("Happiness");
+	}
+
+	@Override
+	public Map<String, Double> getParameters() {
+		return parameters;
+	}
+	
+
+}

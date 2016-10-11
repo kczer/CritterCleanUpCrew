@@ -1,0 +1,18 @@
+package buttons;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JButton;
+
+public class Buttons {
+	private static Map<String, JButton> buttons;
+	public static JButton getButton(String name){
+		return buttons.get(name);
+	}
+	
+	public static void initializeButtons(){
+		buttons = new HashMap<String, JButton>();
+		
+	}
+}

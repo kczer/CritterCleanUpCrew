@@ -1,0 +1,38 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+
+public class InformationView extends JPanel {
+	GameView mainView;
+	
+	/**
+	 * Constructor for the InformationView.
+	 * Currently sets the background color to Green.
+	 * Sets Opacity to true.
+	 * Sets the gameview to which it is attached.
+	 */
+	public InformationView(GameView g){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.YELLOW);
+		mainView = g;
+	}
+	
+	public void paint(Graphics g){
+		super.paint(g);
+		try{
+			BufferedImage b = ImageIO.read(new File("assets/dirt.png"));
+			//System.out.print(b);
+			//g.drawImage(b, 0, 0, Color.gray, this);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+}

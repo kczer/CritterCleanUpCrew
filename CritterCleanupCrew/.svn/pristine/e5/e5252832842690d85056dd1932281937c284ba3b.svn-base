@@ -1,0 +1,16 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import enitities.*;
+import model.*;
+import powerups.*;
+
+public class PowerUpTests {
+	
+	@Test public void PowerUp_general(){
+		assertTrue(false);
+	}
+}

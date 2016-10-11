@@ -1,0 +1,47 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import javax.swing.event.MouseInputListener;
+
+import org.junit.Test;
+
+import views.GameView;
+
+
+import listeners.*;
+
+public class ListenerTests {
+
+	@Test
+	public void CounterMouseListener_Test() {
+		CounterMouseListener e = new CounterMouseListener();
+		assertTrue(e.equals(null));
+	}
+
+	@Test
+	public void InformationMouseListener_Test() {
+		InformationMouseListener e = new InformationMouseListener();
+		assertTrue(e.equals(null));
+	}
+	
+	@Test
+	public void InteractionMouseListener_Test() {
+		GameView gv = new GameView();
+		MouseInputListener[] array = gv.getSubviews().get("Interaction").getListeners(MouseInputListener.class);
+		assertTrue(array.length>0);
+	}
+	
+	@Test
+	public void MinimapMouseListener_Test() {
+		MinimapMouseListener e = new MinimapMouseListener(new GameView());
+		assertTrue(e.equals(null));
+	}
+	
+	@Test
+	public void ToolboxMouseListener_Test() {
+		ToolboxMouseListener e = new ToolboxMouseListener();
+		assertTrue(e.equals(null));
+	}
+
+}

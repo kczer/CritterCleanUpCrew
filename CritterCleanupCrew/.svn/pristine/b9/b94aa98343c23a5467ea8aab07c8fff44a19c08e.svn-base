@@ -1,0 +1,22 @@
+package players;
+
+import model.GameState;
+import moves.Move;
+
+public class NetworkPlayer implements Player{
+	
+	/**
+	 * Gets moves from the network.
+	 */
+	public Move getNextMove(GameState gameState) {
+		return null;
+	}
+
+	/**
+	 * Possibly network-specific name.
+	 */
+	public String getID() {
+		return null;
+	}
+
+}

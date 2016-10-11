@@ -1,0 +1,42 @@
+package listeners;
+
+import java.awt.Cursor;
+import java.awt.event.MouseEvent;
+
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputListener;
+
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import model.Actionable;
+import model.Position;
+import moves.AttackMove;
+import moves.MotionMove;
+import moves.Move;
+
+import settables.Settable;
+import views.*;
+
+public class IsoInteractionMouseListener extends InteractionMouseListener{
+
+	public IsoInteractionMouseListener(GameView gameView) {
+		super(gameView);
+	}
+
+	/**
+	 * Returns the position of the event (usually click) on the InteractionView
+	 * itself.
+	 */
+	protected Position positionOfEvent(MouseEvent event) {
+
+		double x = iView.isoToI(event.getX() + iView.getOverHeadOffsetX(),
+				event.getY() + iView.getOverHeadOffsetY());
+		double y = iView.isoToJ(event.getX() + iView.getOverHeadOffsetX(),
+				event.getY() + iView.getOverHeadOffsetY());
+
+		Position pos = new Position(x, y+0.5);
+		System.out.println(pos);
+
+		return pos;
+	}
+}

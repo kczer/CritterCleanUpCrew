@@ -1,0 +1,72 @@
+package settables;
+
+import java.util.Map;
+
+
+import enitities.Entity;
+import enitities.Gnome;
+
+import model.GameState;
+import model.Position;
+
+public class TrashCan extends Settable {
+	
+	protected static Map<String, Double> parameters; //where parameters are kept.
+	
+	
+	public TrashCan(){
+		if (parameters==null){ //if parameters have not been loaded
+			parameters = Settable.loadParameters("data/Trash Can.txt"); //load them.
+		}
+		cost = parameters.get("Cost").intValue();
+		changedHappiness = false;
+		hitPoints = parameters.get("MaxHP");
+		totalTime=0;
+	}
+
+	/**
+	 * Edited actionDoing- spawns gnomes. Nothing else new.
+	 */
+	public boolean doAction(GameState g) {
+
+		changeHappiness(g); //change the happiness
+		
+		totalTime+=g.getTickSpeed()/1000.; //increment time
+		
+		if (totalTime>timeOfNextAction){ //if we've exceeded that time, then spawn
+			
+			Position posToSpawn = spawnEntityLocation(g); //where to spawn
+
+			Entity ent = new Gnome(posToSpawn); //Spawns Gnomes //TODO
+			
+			g.getEntities().add(ent); //stick in game
+			
+			timeOfNextAction = totalTime+(g.getGenerator().nextGaussian())*getParameters().get("SpawnTimeSpread")+
+					getParameters().get("SpawnTime"); //figure out when next to spawn
+		}
+		return true;
+	}
+
+	@Override
+	public String getName() {
+		return "Trash Can";
+	}
+
+	@Override
+	public int getCycleTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	public double getHappiness(){
+		return parameters.get("Happiness");
+	}
+
+	@Override
+	public Map<String, Double> getParameters() {
+		return parameters;
+	}
+	
+	
+
+}

@@ -1,0 +1,168 @@
+package listeners;
+
+import java.awt.Cursor;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputListener;
+
+import model.Position;
+import moves.MotionMove;
+import moves.Move;
+import moves.PlacingMove;
+import settables.Settable;
+import views.*;
+
+public class InteractionMouseListener implements MouseInputListener {
+	GameView gameView;
+	InteractionView iView;
+	Position lastDragPosition; //position on screen, not the grid!
+	
+	public InteractionMouseListener(GameView gameView){
+		this.gameView = gameView;
+		iView = (InteractionView)gameView.getSubviews().get("Interaction");
+	}
+	@Override
+	public void mouseClicked(MouseEvent event) {
+		System.out.println("Interaction "+"Down "+event.getX()+", "+event.getY());
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent event){
+		System.out.println("Interaction "+"Enter "+event.getX()+", "+event.getY());
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent event) {
+		System.out.println("Interaction "+"Exit "+event.getX()+", "+event.getY());
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent event) {
+		lastDragPosition = new Position(event.getX(), event.getY()); //in case we're dragging
+		
+		if (SwingUtilities.isLeftMouseButton(event)){ //if it's a left button click
+			if (gameView.getButtonMove()!=null){ //if there is a class to place
+				launchButtonMove(event);
+				
+				//reset cursor
+				gameView.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			}
+			else{ //I guess we want something else done?
+				
+			}
+		}
+		if (SwingUtilities.isRightMouseButton(event)){ //if it's  right mouse button click.
+			if (gameView.getButtonMove()!=null){ //if there is a class to place
+				gameView.setButtonMove(null); //removing placing.
+				
+				//reset Cursor
+				gameView.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			}
+			else{
+				setPlayerInMotion(event);
+			}
+		}
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent event) {
+		System.out.println("Interaction "+"Up "+event.getX()+", "+event.getY());
+		lastDragPosition = null; //definitely done dragging
+
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent event) {
+		System.out.println("Interaction "+"DRAG "+event.getX()+", "+event.getY());
+		
+		iView.setOverHeadOffsetX(iView.getOverHeadOffsetX()+ //standard
+				lastDragPosition.getX()- //before (difference)
+				event.getX()); //now
+		
+		iView.setOverHeadOffsetY(iView.getOverHeadOffsetY()+ //standard
+				lastDragPosition.getY()- //before (difference)
+				event.getY()); //now
+		lastDragPosition = new Position(event.getX(), event.getY()); //new position for pivot
+
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent event) {
+		System.out.println("Interaction "+"MOVE "+event.getX()+", "+event.getY());
+
+	}
+	/**
+	 * Returns the position of the event (usually click)
+	 * on the InteractionView itself.
+	 */
+	private Position positionOfEvent(MouseEvent event){
+		
+		int height = iView.getBlockHeight();
+		int width = iView.getBlockWidth();
+		double x = (event.getX()+iView.getOverHeadOffsetX())/width;
+		double y = (event.getY()+iView.getOverHeadOffsetY())/height;
+		
+		Position pos = new Position(x,y);
+		
+		return pos;
+	}
+	/**
+	 * Places the plant selected in the mainView to the position in the event.
+	 * To be called when the string containing the name of the class of the plant
+	 * to be planted is non-null and valid.
+	 */
+//	protected void placePlant(MouseEvent event){
+//		try {
+//			Class toPlace = Class.forName(gameView.getPlaceClass());
+//			Settable plant = (Settable) toPlace.newInstance();
+//			
+//			Position pos  = positionOfEvent(event).intPosition();
+//			System.out.println(pos);
+//			System.out.println(plant.getName());
+//			
+//			PlacingMove pm = new PlacingMove(plant, pos);
+//			if (pm.isValid(gameView.getCurrentGame().getState())){
+//				pm.makeMove(gameView.getCurrentGame().getState());
+//			}
+//			gameView.setPlaceClass(null); //say "we got it"
+//		} catch (ClassNotFoundException e) {
+//			
+//			System.out.println(gameView.getPlaceClass()); //not found? Rrally?
+//			e.printStackTrace();
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	/**
+	 * 
+	 * Gives the button move pressed a position and attempting making it work.
+	 */
+	private void launchButtonMove(MouseEvent event) {
+		Position pos = positionOfEvent(event);
+		Move theMove = gameView.getButtonMove(); //get the move
+		gameView.setButtonMove(null); //move done
+		theMove.setPosition(pos); //give it the position
+		if (theMove.isValid(gameView.getCurrentGame().getState())){ //if valid
+			theMove.makeMove(gameView.getCurrentGame().getState()); //do it!
+		}
+		
+		
+	}
+	
+	/**
+	 * Sets the human player running to the location of the click in game;
+	 */
+	protected void setPlayerInMotion(MouseEvent event){
+		Position p = positionOfEvent(event); //get position
+		Move motionMove = new MotionMove(p); //Make a motionMove to go there
+		gameView.getCurrentGame().getPlayers().get("HumanPlayer").setNextMove(motionMove); //give that motion move to the player
+	}
+}

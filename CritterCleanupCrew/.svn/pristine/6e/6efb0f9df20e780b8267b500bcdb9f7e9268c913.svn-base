@@ -1,0 +1,128 @@
+package players;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import model.Actionable;
+import model.Field;
+import model.Game;
+import model.GameState;
+import model.Position;
+import moves.AttackMove;
+import moves.MotionMove;
+import moves.Move;
+
+public class AIPlayer extends HumanPlayer{
+	private String name;
+	
+/*	
+	private ArrayList<Move> nextMoves;
+	private Move targetMove;
+	Actionable target;
+	boolean friendly;
+	Position position;*/
+	
+	public AIPlayer(Game playedGame, String name){
+		super(playedGame);
+		game= playedGame;
+		this.name = name;
+	}
+	
+	public AIPlayer(Game playedGame, String name, PlayerCharacter controlled){
+		super(playedGame, controlled);
+		game= playedGame;
+		this.name = name;
+		underControl = controlled;
+	}
+
+	/**
+	 * Returns calculated next move.
+	 */
+	public Move getNextMove(GameState gameState) {
+		calculateMove(gameState); //calculate itself a move, set the target move to the new one
+		return super.getNextMove(gameState); //return the calculation done by the human
+	}
+
+	/**
+	 * Returns generic AI identifier.
+	 */
+	public String getID() {
+		return name;
+	}
+	
+	/**
+	 * Calculates a move for the given GameState.
+	 * It uses heuristics and move skipping for smoother
+	 * transitions.
+	 */
+	private void calculateMove(GameState gameState){
+		if (targetMove instanceof AttackMove){ //if we are attacking
+			return;
+		}
+		//else start looking
+		Entity target = findEntityTarget(gameState, false);//find an enemy to target
+		Move toSet=null;
+		if (target!=null){ //if we got a target
+			toSet = new AttackMove(target, underControl); //make a new attacking move here to target and attack with this guy
+		}
+		else if (targetMove==null){ //else we didn't get a target and we had no other move
+			toSet = new MotionMove(new Position(Field.fieldWidth*0.5, Field.fieldHeight*0.5)); //move to the dead middle
+		}
+		targetMove = toSet; //set the target move to the determined
+	}
+	
+	/**
+	 * Finds target using typical search-for minimum
+	 * algorithm over all the entities.
+	 * Specify what to look for- friendly or not.
+	 * Usually to be used by enemies.
+	 */
+	protected Entity findEntityTarget(GameState g, boolean friendly){
+		ArrayList<Double> weights = new ArrayList<Double>(); //weights for probabilities of entities
+		double sumOfWeights=0;
+		Entity target=null;
+		ArrayList<Entity> entities = (ArrayList<Entity>)g.getEntities(); //FIXME
+		for (Entity cur: entities){ //searches over entities
+			double d = underControl.getPosition().distanceTo(cur.getPosition()); //get the distance
+			weights.add(Math.pow(0.8,d)); //add the weight in
+			sumOfWeights+=Math.pow(0.8,d); //add up the weights
+		}
+		double counter=1; //counter for random purposes
+		double random = g.getGenerator().nextDouble(); //get the random number
+		for (int i=0;i<weights.size();i++){ //go through every weight 
+			double weight = weights.get(i)/sumOfWeights;//and scale them
+			counter-=weight; //subtract the weight
+			if (counter<random&&!entities.get(i).isFriendly()){ //if we got the wait and it isn't friendly
+				target = entities.get(i);
+				break;
+			}
+		}
+		
+		return target;
+	}
+	
+	
+	/**
+	 * Returns what move should be executed it we where to 
+	 * attack using the given move. Moves closer to the target
+	 * if out of attack range, or gives an actual attacking move
+	 * if in range. If it gives an attacking move- it nullifies
+	 * the target move for the player character.
+	 */
+	protected Move attackingMove(AttackMove tmove, GameState g) {
+		double range = tmove.getAttackingWeapon().getParameters().get("Range");
+		Position target = tmove.getTarget().getPosition();
+		if (tmove.getTarget().getHitPoints()<=0){
+			targetMove = null; //nullify target
+			return null;
+		}
+		if (underControl.getPosition().distanceTo(target)<range){ //if in range
+			return tmove; //return this attack
+		}
+		else{ //if out of range
+			return getMotionMove(target, g);
+		}
+	}
+}

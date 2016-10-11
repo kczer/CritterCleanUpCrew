@@ -1,0 +1,33 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import enitities.*;
+import model.*;
+import moves.*;
+
+public class MoveTests {
+
+	@Test
+	public void Move_AttackMove(){
+		assertFalse(true);
+	}
+	
+	@Test
+	public void Move_EntityMotionMove(){
+		assertFalse(true);
+	}
+	
+	@Test
+	public void Move_PlacingMove(){
+		assertFalse(true);
+	}
+	
+	@Test
+	public void Move_PowerUpMove(){
+		assertFalse(true);
+	}
+	
+}

@@ -1,0 +1,22 @@
+4
+
+Tools 1
+Plants 2
+Characters 3
+
+buttons.ToolButton
+DigUp
+WaterMaking
+
+buttons.PlantingButton
+settables.EnglishIvy
+settables.WhiteOak
+settables.TrashCan
+settables.SweetPepperbush
+
+buttons.CharacterButton
+Elk
+Squirrel
+Fox
+Rabbit
+

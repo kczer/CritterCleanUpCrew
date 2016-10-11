@@ -1,0 +1,62 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import model.*;
+import players.*;
+import settables.EnglishIvy;
+import settables.Settable;
+
+public class ModelTests{
+	
+	@Test public void Block_ActivateSettable(){
+		Block b = new Block();
+		Settable ei = new EnglishIvy();
+		b.setEntityOnTile(ei);
+		assertTrue(b.activateSettable(new GameState()));
+	}
+	
+	@Test public void FieldTests(){
+		Field f = new Field();
+		assertTrue(f.getAreaBlocks()!=null);
+	}
+	
+	@Test public void Game_Tick(){
+		Game g = new Game();
+		Game gn = g.copy();
+		g.tick();
+		assertFalse(g.equals(gn));
+		
+		assertTrue(g.tickSpeed()>0);
+	}
+	
+	@Test public void Game_AddPlayer(){
+		Game g = new Game();
+		assertTrue(g.addPlayer(new HumanPlayer(new Game())));
+	}
+	
+	@Test public void GameState_isEnd(){
+		GameState gs = new GameState();
+		
+		assertFalse(gs.isEnd()); //it hasn't started, how can be already be done?
+	}
+	
+	@Test public void GameState_tick(){
+		GameState g = new GameState();
+		int money = g.getMoney();
+		g.tick();
+		assertTrue(g.getMoney()==money);
+	}
+	
+	@Test public void Position_DistanceTo(){
+		Position p1 = new Position(0,0);
+		Position p2 = new Position(3,4);
+		assertEquals(p1.distanceTo(p2), p2.distanceTo(p1), 0.001);
+		assertEquals(p1.distanceTo(p2), 5, 0.001);
+	}
+	
+	
+
+}

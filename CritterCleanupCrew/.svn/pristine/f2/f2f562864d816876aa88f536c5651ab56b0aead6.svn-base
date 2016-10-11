@@ -1,0 +1,46 @@
+package moves;
+
+import weapons.Weapon;
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import model.GameState;
+import model.Position;
+
+public class AttackMove implements Move {
+	private Entity target;
+	private Weapon attackingWeapon;
+	private PlayerCharacter attacker;
+
+	/**
+	 * Can this weapon attack the selected entity (in range,
+	 * of correct type).
+	 */
+	public boolean isValid(GameState gameState) {
+		//for now, just if in range
+		if (attackingWeapon.getParameters().get("Range")> //if range
+			attacker.getPosition().distanceTo(target.getPosition())){ //is greater than the distance between them
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Attack the selected entity, do some damage.
+	 */
+	public boolean makeMove(GameState gameState) {
+		double damage = attackingWeapon.getParameters().get("BaseDamage")+//base damage
+				attackingWeapon.getParameters().get("DamageSpread")* //the spread
+				gameState.getGenerator().nextGaussian(); //the random
+		
+		target.setHitPoints(target.getHitPoints()- //the hitpoints to the old
+				damage); //minus the damage dealt
+		return true;
+	}
+
+	@Override
+	public void setPosition(Position p) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

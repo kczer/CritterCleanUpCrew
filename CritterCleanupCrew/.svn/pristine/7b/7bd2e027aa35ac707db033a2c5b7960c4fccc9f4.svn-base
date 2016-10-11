@@ -1,0 +1,8 @@
+Cost 250
+SpawnTime 1000
+SpawnTimeSpread 100
+SpawnLocSpread 3
+Happiness -0.03
+MaxHP 10
+PlantMultiplyTime 100
+MultiplySpread 2.1

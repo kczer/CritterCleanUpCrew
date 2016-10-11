@@ -1,0 +1,212 @@
+package model;
+
+
+
+
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+
+import powerups.PowerUp;
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import settables.Settable;
+import weapons.Weapon;
+
+
+public class GameState 
+	implements java.io.Serializable //Hang 5/1/14
+{
+
+	private Field gameField;
+	private Collection<Entity> entities;
+	private Collection<Settable> plants;
+	private Map<String, PlayerCharacter> playerCharacters;
+	private int points;
+	private double happiness;
+	private int money;
+	private Collection<PowerUp> powerUps;
+	private Map<String, Integer> pointCounters;
+	private Random generator;
+	private Collection<Actionable> toAdd; //for further additions, not to have concurrent modification
+	
+	
+	/**
+	 * No arg constructor for a GameState.
+	 * Uses no arg constructors everywhere.
+	 * All collections are ArrayLists/
+	 * Points initially are 0.
+	 * Money initially is 1000.
+	 * Happiness initially is 0.5.
+	 */
+	public GameState(){
+		gameField = new Field(); //empty field
+		entities = new ArrayList<Entity>(); //no entities
+		plants = new ArrayList<Settable>(); //no plants
+		powerUps = new ArrayList<PowerUp>(); //no powerups
+		pointCounters = new HashMap<String, Integer>(); //for keeping score
+		playerCharacters = new HashMap<String, PlayerCharacter>(); //make player characters
+		
+		makePlayerCharacters();
+		
+		points=0; //no points 
+		happiness=0.5; //average happiness
+		money=1000; //some money
+		generator = new Random();
+		toAdd = new ArrayList<Actionable>();
+	}
+	
+	/**
+	 * Checks if the state has come to a point,
+	 * where the game can no longer continue. If it
+	 * has, the method returns true.
+	 */
+	public boolean isEnd(){
+//		if (plants.size()==0){  //if we have run out of plants
+//			return true;
+//		}
+		if (happiness<0){ //if we are unhappy
+			return true;
+		}
+		return false; //otherwise keep running
+	}
+	
+	/**
+	 * Does a small step in changing the game state.
+	 * The game state is actually static, so the method
+	 * manipulates itself using moves that objects provide.
+	 */
+	public void tick(){
+		for (Iterator<Settable> iter = plants.iterator();
+				iter.hasNext();){ //for every entity
+			Settable cur = iter.next();
+			if (cur.getHitPoints()<=0){ //if dead
+				
+				iter.remove(); //remove this one
+				gameField.getAreaBlocks()[cur.getPosition().getIntX()][cur.getPosition().getIntY()].setEntityOnTile(null); //clear up block
+				double happinessAdded = cur.getHappiness();
+				happiness-=happinessAdded>0?happinessAdded:0; //subtract the happiness if was added,
+															  //leave if took away
+			}
+			else{
+				cur.doAction(this); //it should do its thing.
+			}	
+		}
+		for (Iterator<Entity> iter = entities.iterator();
+				iter.hasNext();){ //for every entity
+			Entity cur = iter.next();
+			if (cur.getHitPoints()<=0){ //if dead
+				
+				money+=cur.getParameters().get("MoneyOnDeath"); //add money for death/kill
+				
+				iter.remove(); //remove this one
+				
+			}
+			else{
+				cur.doAction(this); //it should do its thing.
+			}	
+		}
+		for (Iterator<Actionable> iter = toAdd.iterator();
+				iter.hasNext();){
+			Actionable next =iter.next(); //get next
+			iter.remove(); //remove from list
+			if(next instanceof Settable){
+				plants.add((Settable)next);
+			}
+			if(next instanceof Entity){
+				entities.add((Entity)next);
+			}
+			
+		}
+	}
+
+	public Field getGameField() {
+		return gameField;
+	}
+
+	public Collection<Entity> getEntities() {
+		return entities;
+	}
+
+	public Collection<Settable> getPlants() {
+		return plants;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public double getHappiness() {
+		return happiness;
+	}
+
+	public int getMoney() {
+		return money;
+	}
+
+	public Collection<PowerUp> getPowerUps() {
+		return powerUps;
+	}
+	
+	public Random getGenerator(){
+		return generator;
+	}
+	
+	public void setHappiness(double h){
+		happiness = h;
+	}
+
+	public Collection<Actionable> getToAdd(){
+		return toAdd;
+	}
+
+	public void setMoney(int money) {
+		this.money = money;
+		
+	}
+
+	/**
+	 * @see Game#tickSpeed()
+	 */
+	public int getTickSpeed() {
+		return 25; //40 ms per tick.
+	}
+
+	/**
+	 * Returns the adjustment needed to time-dependent 
+	 * parameters according to the speed of the game
+	 */
+	public double perTickMultiplier(){
+		return getTickSpeed()/1000.; //part of second
+	}
+
+	public Map<String, PlayerCharacter> getPlayerCharacters() {
+		return playerCharacters;
+	}
+	
+	/**
+	 * Makes the player-controlled characters and puts them into
+	 * the map of player characters.
+	 */
+	protected void makePlayerCharacters(){ //TODO 
+		String[] characterNames ={"Elk", "Rabbit", "Squirrel", "Fox"}; //names, subject to change
+		for (String name: characterNames){ //for every name of character
+			Weapon w = new Weapon("StandardWeapon"); //make a new standard weapon
+			PlayerCharacter  p = new PlayerCharacter(name,null); //make a new playercharacter with the given name
+			w.setWielder(p); //give the weapon its wielder
+			p.setCurrentWeapon(w); //give the character the weapon
+			playerCharacters.put(name, p); //put the character into the map
+		}
+	}
+	
+//	public void saveGame() throws IOException{
+//		 FileOutputStream fos = new FileOutputStream("tempdata.ser");
+//         ObjectOutputStream oos = new ObjectOutputStream(fos);
+//         
+//
+//	}  Hang
+}

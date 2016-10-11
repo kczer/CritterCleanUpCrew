@@ -1,0 +1,88 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+
+import model.Field;
+
+public class MinimapView extends JPanel {
+
+	int colNumber = 25; //number of columns to be on screen
+	int rowNumber = 13; //number of rows to be on screen
+	
+	GameView mainView;
+	
+	public MinimapView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.YELLOW);
+		this.mainView = mainView;
+		//Graphics copy = mainView.initViews().subviews.get("Interaction", new InteractionView(this));
+	}
+	
+	public void paint(Graphics g){
+		super.paint(g);
+		paintMap(g);
+		try{
+			BufferedImage b = ImageIO.read(new File("assets/dirt.png"));
+			//System.out.print(b);
+			//g.drawImage(b, 0, 0, Color.gray, this);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void paintMap(Graphics g)
+	{
+		Field world = mainView.getCurrentGame().getState().getGameField();
+		
+		int viewHeight = getHeight(); //FIXME do only on resize
+		int viewWidth = getWidth();  //FIXME do only on resize
+		int imgHeight = viewHeight/rowNumber;
+		int imgWidth = viewWidth/colNumber;
+		
+		
+	
+		for (int col=0;col<world.getAreaBlocks().length;col++){ //print out background - water, dirt
+			for (int row=0;row<world.getAreaBlocks()[col].length;row++){
+				if (world.getAreaBlocks()[col][row].isWater()){
+					
+					g.drawImage(mainView.getImages().get("water"), //image
+							row*imgWidth, col*imgHeight, //location
+							imgWidth, imgHeight, //size
+							null);  //no observer
+				}
+				else{
+					
+					g.drawImage(mainView.getImages().get("dirt"), //image
+							row*imgWidth, col*imgHeight, //location
+							imgWidth, imgHeight, //size
+							null);  //no observer
+					
+				}
+			}
+		}
+	}
+	/*
+	 * ignore these
+	 * 
+	public void InteractionViewToWorld(Graphics interactionView, Field fullMap)
+	{
+	    w[0] = v[0] + this.viewOrigin[0];
+	    w[1] = v[1] + this.viewOrigin[1];
+	}
+	public void WorldToMinimap(Field fullMap, Graphics minimap)
+	{
+	}
+	public void MinimapToWorld(Graphics minimap, Field fullMap)
+	{
+	}
+*/
+
+}

@@ -1,0 +1,43 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import enitities.*;
+import model.*;
+import moves.Move;
+
+public class EntitiesTests {
+	
+	@Test public void PlayerCharacter_getName(){
+		PlayerCharacter pc = new PlayerCharacter();
+		assertTrue(pc instanceof Entity);
+		
+		assertTrue(pc.getName().equals("Critter"));
+	}
+	
+	@Test public void PlayerCharacter_doAction(){
+		PlayerCharacter pc = new PlayerCharacter();
+		assertTrue(pc.doAction(new GameState()));
+	}
+	
+//	@Test public void PlayerCharacter_loadParameters(){
+//		PlayerCharacter pc = new PlayerCharacter();
+//		
+//		assertTrue(pc.loadParameters("Params.txt"));
+//		
+//	}
+	
+//	@Test public void PlayerCharacter_nextMove(){
+//		PlayerCharacter pc = new PlayerCharacter();
+//		Move m = pc.nextMove(new GameState());
+//		assertTrue(m!=null);
+//	}
+	
+	@Test public void PlayerCharacter_switchWeapons(){
+		PlayerCharacter pc = new PlayerCharacter();
+		assertTrue(pc.switchWeapons(2));
+	}
+}
+

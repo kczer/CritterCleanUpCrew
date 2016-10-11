@@ -1,0 +1,29 @@
+4
+
+Characters 1
+Plants 2
+Tools 3
+
+buttons.CharacterButton
+Elk
+Squirrel
+Fox
+Rabbit
+
+buttons.PlantingButton
+settables.JapaneseMaple
+settables.WhiteOak
+settables.Arborvitae
+settables.MilkWeed
+settables.EnglishIvy
+settables.BradfordPear
+settables.SweetPepperbush
+settables.WildCherry
+
+buttons.ToolButton
+DigUp
+WaterMaking
+WaterRemoval
+
+
+

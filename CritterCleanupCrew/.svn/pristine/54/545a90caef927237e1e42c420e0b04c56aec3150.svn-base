@@ -1,0 +1,53 @@
+Even when looking for this file, you probably encountered a style that we are going to be using.
+These are for the most part general guidelines to keep out coding style consistent and easy 
+readable by everyone. Even if you didn't use this style before, use it for the greater good of the
+team. Starred* parts are optional and are more of your own style, but I'll put them down nonetheless.
+ 
+0. General
+-Use CamelCase, not Camel_Case: separate words by a capital letter, not other ways, in all writing.
+-Use correct spelling and avoid typos. Dictionaries and the one built into Eclipse is nice.
+
+1. Packages
+-Package names begin with a lowercase letter and have a name generally describing the contents.
+-Packages should be made when a large number of similar classes is made with slight variations,
+	or to group together chunks of the application (view, controller, model).
+-Nest packages if needed, usually if the similar class problem arises inside a "chunk".
+
+
+2. Classes/Interfaces
+-The name of a class starts with a capital letter.
+-The name of a class should somehow reference any classes/interfaces it references, unless a word
+	in the English language exists for it. Cat->SubCat->DoubleSubCat is good, Cat->CatChild is fine,
+	but Cat->Kitten might be better.
+-Classes should be in separate files. Static classes and especially anonymous classes increase
+	code length because you can't reuse their code.
+
+3. Methods
+-Method names begin with a lowercase letter.
+-Method parameters should have meaningful names, because they can be seen by anyone calling the method
+	and help in remembering in what the method uses.
+-Document methods using the "pre-method blue" documentation method. If a method is documented like this,
+	the a helpful pop-up appears in Eclipse with the text of the documentation. This is as follows:
+	
+	/** Two stars required, this line appears in doc
+	 * Here goes the doc. Block of text is fine.
+	 *
+	 */
+	 
+	 Since this is CSS, getting line breaks and so forth is hard, so there is no need. A wall of text 
+	 explaining the basic idea is fine. Explain things that can't be concluded from the signature 
+	 (no type explanations, no obvious returns <methodName> and takes <parameterName>).
+	 
+-*Sign your name in a green comment (/* */) inside, at the end of the method and date, it'll be easier to figure out 
+	who to ask when fixing errors.
+	
+4. Variables
+-Start variable names with a lowercase letter.
+
+-*Use meaningful names, even for counters in for loops. Debugging is SO much easier when you know
+	what you're looking for. So cat1 cand cat2 should be used in dire circumstances- there should be a difference.
+	
+5. Committing
+-When writing code- first test it on your machine, then commit. Listen to Harvey.
+
+Written by Nick, 4/16/2014

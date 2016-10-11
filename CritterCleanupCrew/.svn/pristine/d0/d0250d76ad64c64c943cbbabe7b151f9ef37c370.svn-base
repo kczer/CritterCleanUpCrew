@@ -1,0 +1,41 @@
+package enitities;
+
+import java.util.Map;
+
+
+import model.GameState;
+import model.Position;
+
+public class Catterpillar extends Entity{
+	protected static Map<String, Double> parameters;
+	
+	public Catterpillar(Position p){
+		if (parameters==null){ //if weren't loaded, load.
+			parameters=Entity.loadParameters("data/Catterpillar.txt");
+		}
+		friendly = true; //it's friendly.
+		position=p;
+		target=null;
+		hitPoints = parameters.get("MaxHP");
+	}
+
+	@Override
+	public String getName() {
+		return "Catterpillar";
+	}
+	
+	@Override
+	public boolean forceAction(GameState g) {
+		return super.forceAction(g);
+	}
+	
+	public String toString(){
+		return "Catterpillar at "+position.toString();
+	}
+	
+	public Map<String, Double> getParameters() {
+		return parameters;
+	}
+
+
+}

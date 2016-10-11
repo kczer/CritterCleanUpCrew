@@ -1,0 +1,26 @@
+package buttons;
+
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+
+
+
+
+
+import views.ToolboxView;
+
+public class FlowersButton extends GameButton{ 
+
+	public FlowersButton(ToolboxView g){
+		super(g);
+		setText("Flowers");
+		setBackground(Color.GREEN);
+		addActionListener(this);
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		System.out.println("Clicked Tools Button");
+		toolboxView.setCurrentToolSet(1); //TODO
+	}
+
+}

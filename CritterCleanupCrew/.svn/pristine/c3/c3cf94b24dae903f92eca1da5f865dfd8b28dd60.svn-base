@@ -1,0 +1,27 @@
+package buttons;
+
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+
+import views.GameView;
+import views.ToolboxView;
+
+public class ToolsButton extends GameButton{ 
+
+	public ToolsButton(ToolboxView g){
+		super(g);
+		setText("Tools");
+		setBackground(Color.GREEN);
+		addActionListener(this);
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		System.out.println("Clicked Tools Button");
+		toolboxView.setCurrentToolSet(0); //TODO
+		
+	}
+
+}

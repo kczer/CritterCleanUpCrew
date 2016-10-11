@@ -1,0 +1,74 @@
+
+import java.util.Collection;
+
+
+
+
+
+import enitities.Entity;
+import enitities.Gnome;
+import settables.TrashCan;
+import views.*;
+import model.*;
+import moves.PlacingMove;
+
+public class MainController {
+	/*
+	 * Currently only for testing purposes. Hold the main method,
+	 * creates the main view, the game, gives them to each other 
+	 * and runs them.
+	 */
+	
+	public static void main(String[] args){
+		GameFrameView mainView2 = new GameFrameView();
+//		Game game = new Game();
+//		mainView.setCurrentGame(game);
+//		mainView.repaint();
+//		PlacingMove m = new PlacingMove(new EnglishIvy(), new Position(2,2));
+////		m.makeMove(mainView.getCurrentGame().getState());
+//		mainView.repaint();
+//		mainView.repaint();
+//		mainView.repaint();
+		/*Collection<Entity> c = mainView.getCurrentGame().getState().getEntities();
+		c.add(new Gnome(new Position(10, 10)));
+		c.add(new Gnome(new Position(10, 5)));
+		c.add(new Gnome(new Position(7, 6)));
+		PlacingMove m = new PlacingMove(new TrashCan(), new Position(6,6));
+		m.makeMove(mainView.getCurrentGame().getState());
+		long time, nextTick;
+		
+		while (!mainView.getCurrentGame().getState().isEnd()){
+			//System.out.println(mainView.getCurrentGame().getState().getEntities());
+			mainView.getCurrentGame().tick();
+			mainView.repaint();
+			
+//			try{
+//				Thread.sleep(mainView.getCurrentGame().tickSpeed());
+//			}
+//			catch(InterruptedException e){
+//				e.printStackTrace();
+//			}
+			
+			time = System.currentTimeMillis();
+			nextTick = time+=mainView.getCurrentGame().tickSpeed();
+			while (System.currentTimeMillis()<nextTick){} //wait
+		}
+		
+//		SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                GameView ex = new GameView();
+//                ex.setVisible(true);
+//                PlacingMove m = new PlacingMove(new EnglishIvy(), new Position(2,3));
+//        		m.makeMove(ex.getCurrentGame().getState());
+//        		System.out.println("RUN CALLED");
+//            }
+//        });
+//		try{
+//		SwingUtilities.invokeLater(new TestRunner());
+//		}catch(Exception e){}
+		*/
+		
+	}
+
+}

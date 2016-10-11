@@ -1,0 +1,41 @@
+package buttons;
+
+import java.awt.event.ActionEvent;
+
+import moves.Move;
+import moves.PlacingMove;
+import settables.Settable;
+import views.ToolboxView;
+
+public class ToolButton extends GameButton {
+	
+	private String toolName;
+	
+	public ToolButton(ToolboxView tbv, String toolName) {
+		super(tbv);
+		this.toolName = toolName;
+		addActionListener(this); //make itself listen
+		setText("DigUp"); //FIXME
+	}
+	
+	public void actionPerformed(ActionEvent event){
+		super.actionPerformed(event);
+		
+		try {
+			Class toPlace = Class.forName(toolName+"Move"); //obtain move type
+			Move move = (Move) toPlace.newInstance(); //make a move
+			
+			toolboxView.getMainView().setButtonMove(move); //give it the move
+
+		} catch (ClassNotFoundException e) {
+			
+			System.out.println(toolName); //not found? Rrally?
+			e.printStackTrace();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+}
+

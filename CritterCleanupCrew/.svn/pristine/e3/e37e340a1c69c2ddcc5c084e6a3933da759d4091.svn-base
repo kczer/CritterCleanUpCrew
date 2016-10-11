@@ -1,0 +1,62 @@
+package animations;
+
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
+import views.GameView;
+import views.InteractionView;
+import weapons.Weapon;
+import model.Position;
+
+public class ExplosionAnimationImageSequence extends AnimationImageSequence {
+	
+	double radiusOfExplosion;
+
+	public ExplosionAnimationImageSequence(GameView gv, Position cov){
+		super(gv, cov);
+		imageSpeed = 4;
+		radiusOfExplosion = (new Weapon("BazookaWeapon")).getParameters().get("BlastRadius"); //get the radius of the explosion
+	}
+	
+	@Override
+	protected void setUpImageParts() {
+		imageParts=new ArrayList<Image>();
+		int imageHeight= 128;
+		int imageWidth= 256;
+		BufferedImage mainImage = mainView.getImages().get("explosionAnimation");
+		for (int i=0;i<12;i++){
+			imageParts.add(mainImage.getSubimage(
+					imageWidth*(i%3), imageHeight*(i/3),
+					imageWidth, imageHeight)); //add in the image
+		}
+
+	}
+
+	@Override
+	public Position getUpperLeftCorner() {
+		double x = iView.twoDToIsoX(centerOfImage.getX(), centerOfImage.getY())+iView.getIsoTileWidth()/2; //get center
+		double y = iView.twoDToIsoY(centerOfImage.getX(), centerOfImage.getY()); 
+		
+		x-=(iView.getIsoTileWidth()*radiusOfExplosion); //shift down
+		y-=(iView.getIsoTileHeight()*radiusOfExplosion); //shift down
+		
+		x-=iView.getOverHeadOffsetX(); //offset it
+		y-=iView.getOverHeadOffsetY();
+		return new Position(x, y); //return it
+	}
+
+	@Override
+	public Position getBottomRightCorner() {
+		double x = iView.twoDToIsoX(centerOfImage.getX(), centerOfImage.getY())+iView.getIsoTileWidth()/2; //get center
+		double y = iView.twoDToIsoY(centerOfImage.getX(), centerOfImage.getY());
+		
+		x+=(iView.getIsoTileWidth()*radiusOfExplosion); //shift down
+		y+=(iView.getIsoTileHeight()*radiusOfExplosion); //shift down
+		
+		x-=iView.getOverHeadOffsetX(); //offset it
+		y-=iView.getOverHeadOffsetY();
+		return new Position(x, y); //return it
+	}
+
+}

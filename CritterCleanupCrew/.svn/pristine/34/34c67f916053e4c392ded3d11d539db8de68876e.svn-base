@@ -1,0 +1,49 @@
+package buttons;
+
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+
+import moves.Move;
+
+
+import views.ToolboxView;
+
+public class ToolButton extends GameButton {
+	
+	private String toolName;
+	
+	public ToolButton(ToolboxView tbv, String toolName) {
+		super(tbv);
+		this.toolName = toolName;
+		addActionListener(this); //make itself listen
+		setText("DigUp"); //FIXME
+	}
+	
+	public void actionPerformed(ActionEvent event){
+		super.actionPerformed(event);
+		
+		try {
+			Class toPlace = Class.forName("moves."+toolName+"Move"); //obtain move type
+			Move move = (Move) toPlace.newInstance(); //make a move
+			
+			toolboxView.getMainView().setButtonMove(move); //give it the move
+			
+
+		} catch (ClassNotFoundException e) {
+			
+			System.out.println(toolName); //not found? Rrally?
+			e.printStackTrace();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(toolboxView.getMainView().getImages().get(toolName), //get image from tool name
+				new Point(0,0), "img"); //make it a cursor
+		toolboxView.getMainView().setCursor(c); //set it to the main view
+		
+	}
+}
+

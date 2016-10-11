@@ -1,0 +1,11 @@
+Cost 300
+SpawnTime 10
+SpawnTimeSpread 1
+SpawnLocSpread 3
+Happiness 0.05
+MaxHP 8
+Native 1
+DigUpMoney 100
+Friendly 1
+HealingRate 3
+HealingRadius 5

@@ -1,0 +1,57 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+public class TutorialView1 extends JPanel implements ActionListener {
+	
+	ButtonView next;
+	ButtonView skip;
+	JPanel cards;
+	GameView mainView;
+	int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+	int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+	
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public TutorialView1(){
+		setBackground(Color.WHITE);
+		next = new ButtonView("Next");
+		skip = new ButtonView("Skip!");
+	
+		add(next); //add the buttons in
+		add(skip);                                         
+	}
+	//ToDO: Need to maybe add text for how to move a character
+	//Adding a tutorialstate of the game for 10 seconds to get a feel for the environment
+	//Or we could make a phamplet before they play the game
+	//smaller grid
+	//make it crazy too, let them put down plants if they want that spawn or hurt really quick!
+	public void paintComponent(Graphics g) {
+		
+		next.setLocation(getWidth()-next.getWidth(), getHeight()-next.getHeight()); //put it in very corner
+		skip.setLocation((getWidth()-skip.getWidth())/2, getHeight()-next.getHeight()); //put it in the center
+		
+		Image bg = new ImageIcon("assets/firstTutorialScreen.png").getImage();
+		super.paintComponent(g);
+		g.drawImage(bg, 0, 0, getWidth(), getHeight()-next.getHeight(), this);
+		// BufferedImage img = mainView.getImages().get("mainMenu");
+		// paint the background image and scale it to fill the entire space
+		// g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+	}
+
+}

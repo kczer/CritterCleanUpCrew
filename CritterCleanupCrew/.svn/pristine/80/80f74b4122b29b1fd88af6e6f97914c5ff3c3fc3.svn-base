@@ -1,0 +1,40 @@
+package animations;
+
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+
+import views.GameView;
+import model.Position;
+
+public class ExplosionAnimationImageSequence extends AnimationImageSequence {
+
+	public ExplosionAnimationImageSequence(GameView gv, Position cov){
+		super(gv, cov);
+		imageSpeed = 5;
+	}
+	
+	@Override
+	protected void setUpImageParts() {
+		super.setUpImageParts();
+		int imageHeight= 128;
+		int imageWidth= 256;
+		BufferedImage mainImage = mainView.getImages().get("explosionAnimation");
+		for (int i=0;i<12;i++){
+			imageParts.add(mainImage.getSubimage(
+					imageWidth*(i%3), imageHeight*(i/3),
+					imageWidth, imageHeight)); //add in the image
+		}
+
+	}
+
+	@Override
+	public Position getUpperLeftCorner() {
+		return new Position(0, 0);
+	}
+
+	@Override
+	public Position getBottomRightCorner() {
+		return new Position(256, 128);
+	}
+
+}

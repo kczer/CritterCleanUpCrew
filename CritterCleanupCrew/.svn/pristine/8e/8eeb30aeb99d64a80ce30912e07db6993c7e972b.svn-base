@@ -1,0 +1,66 @@
+package views;
+
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+
+public class MainMenuView extends JPanel implements ActionListener {
+	ButtonView startGame;
+	ButtonView multiplayer;
+	ButtonView highscores;
+	ButtonView exit;
+	JPanel cards;
+	GameView mainView;
+	int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+	int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+
+	// ================
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	// ===================
+	public MainMenuView() {
+		setBackground(Color.WHITE);
+		startGame = new ButtonView("Start Game");
+		multiplayer = new ButtonView("Multiplayer");
+		highscores = new ButtonView("Highscores");
+		exit = new ButtonView("Exit");
+		JPanel cardPanel = new JPanel(); // cardlayout panel
+		cardPanel.setLayout(new GridLayout(4, 1, 0, screenHeight / 100));
+		cardPanel.add(startGame);
+		cardPanel.add(multiplayer);
+		cardPanel.add(highscores);
+		cardPanel.add(exit);
+		add(cardPanel);
+
+	}
+
+	@Override
+	public void paintComponent(Graphics g) {
+		Image bg = new ImageIcon("assets/mainMenu.png").getImage();
+		super.paintComponent(g);
+		g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+		// BufferedImage img = mainView.getImages().get("mainMenu");
+		// paint the background image and scale it to fill the entire space
+		// g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+	}
+
+}

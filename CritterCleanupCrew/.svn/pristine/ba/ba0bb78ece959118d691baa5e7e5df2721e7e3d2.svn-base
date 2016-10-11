@@ -1,0 +1,51 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public class TieEndGameView extends JPanel implements ActionListener{
+	ButtonView mainMenu;
+	JPanel cards;
+	GameView mainView;
+	int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+	int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+	
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public TieEndGameView() {
+		setBackground(Color.WHITE);
+		mainMenu = new ButtonView("Sorry, but you ran out of time. You didn't die though!");
+	
+		add(mainMenu); //add the buttons in                                       
+	}
+	//ToDO: Need to maybe add text for how to move a character
+	//Adding a tutorialstate of the game for 10 seconds to get a feel for the environment
+	//Or we could make a phamplet before they play the game
+	//smaller grid
+	//make it crazy too, let them put down plants if they want that spawn or hurt really quick!
+	public void paintComponent(Graphics g) {
+		
+		mainMenu.setLocation((getWidth()-mainMenu.getWidth())/2, getHeight()-mainMenu.getHeight()); //put it in the center
+		
+		Image bg = new ImageIcon("assets/tieGameImage.png").getImage();
+		super.paintComponent(g);
+		g.drawImage(bg, 0, 0, getWidth(), getHeight()-mainMenu.getHeight(), this);
+		// BufferedImage img = mainView.getImages().get("mainMenu");
+		// paint the background image and scale it to fill the entire space
+		// g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+	}
+}

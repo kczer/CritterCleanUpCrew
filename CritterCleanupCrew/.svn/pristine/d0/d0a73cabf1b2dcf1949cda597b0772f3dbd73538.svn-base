@@ -1,0 +1,49 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+public class HighScoreView extends JPanel implements ActionListener {
+	
+	ButtonView mainMenu;
+	JPanel cards;
+	GameView mainView;
+	int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+	int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+	
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public HighScoreView(){
+		setBackground(Color.WHITE);
+		mainMenu = new ButtonView("Return to Menu");
+		
+		add(mainMenu);
+	}
+	
+	public void paintComponent(Graphics g) {
+		Image bg = new ImageIcon("assets/LeaderBoard.png").getImage();
+		super.paintComponent(g);
+		
+		mainMenu.setLocation((getWidth()-mainMenu.getWidth())/2, getHeight()-mainMenu.getHeight()); //put it in the center
+		
+		g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+		// BufferedImage img = mainView.getImages().get("mainMenu");
+		// paint the background image and scale it to fill the entire space
+		// g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+	}
+
+}

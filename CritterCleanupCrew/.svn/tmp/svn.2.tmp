@@ -1,0 +1,297 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import enitities.Entity;
+import settables.Settable;
+import views.GameView;
+import model.Block;
+import model.Field;
+
+public class InteractionView extends JPanel {
+
+	int tileWidth = 25; // number of columns to be on screen
+	int tileHeight = 13; // number of rows to be on screen
+	int halfTileWidth = tileWidth / 2;
+	int halfTileHeight = tileHeight / 2;
+	int windowHeight = getHeight(); // FIXME do only on resize
+	int windowWidth = getWidth(); // FIXME do only on resize
+	int centerX = windowWidth / 2;
+	int centerY = windowHeight / 2;
+	int hOffset = windowHeight * (tileWidth / 2);
+	int vOffset = 0;
+
+	GameView mainView;
+
+	/**
+	 * Constructor for the InteractionView. Takes the view which it is a part of
+	 * as a parameter. Currently sets the background color to red. Sets Opacity
+	 * to true.
+	 */
+	public InteractionView(GameView mainView) {
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.BLACK);
+		this.mainView = mainView;
+	}
+
+	public void paint(Graphics g) {
+		super.paint(g); // print background and so forth
+
+		 //isoPaintField(g);
+		 paintField(g); //Turn these on and iso off for overhead view
+		 //isoPaintPlants(g);
+		 paintPlants(g);
+		 //isoPaintEntities(g);
+		 paintEntities(g);
+	}
+
+	/**
+	 * Paints the field, pretty much only water and dirt.
+	 */
+	/*
+	 * I have it painting the view here in one method but what I think we will
+	 * need is maybe one or two other paintFields, or just one which takes a
+	 * parameter other than Graphics so that we can use that parameter, be it a
+	 * given player, or a clicked area on minimap, and then use that parameters
+	 * position to calculate what portion of the map needs to be displayed
+	 * accordingly. The player will always be in the center of the screen when
+	 * moving as it gives a fixed point to calculate the offset x and y values
+	 * and when you click somewhere on the map it could also treat your click as
+	 * the center point, again making these calculations consistent somehow.
+	 * Hopefully that makes sense guys!
+	 */
+	private void isoPaintField(Graphics g) {
+		Field world = mainView.getCurrentGame().getState().getGameField(); // for
+																			// consise
+																			// code.
+		/*
+		 * These are variables I was fooling with when I gave paintField another
+		 * parameter which was Position Center, this parameter could instead be
+		 * a player, etc, and I was basically trying to construct bounds for the
+		 * nested for loop which only print what you need and a little bit past
+		 * to hopefully help performance. The calculations I have may be off but
+		 * I think the general idea of these variables is necessary so I left
+		 * them here.
+		 * 
+		 * int iStart = isoToI(Center.getX(),Center.getY()); int jStart =
+		 * isoToJ(Center.getX(),Center.getY()); int iMax =
+		 * isoToI(Center.getX()+(windowWidth/2),Center.getY()+(windowHeight/2))
+		 * + 1; int jMax = isoToJ(Center.getX(),Center.getY() +
+		 * (windowHeight/2)) + 1; int jMin =
+		 * isoToJ(Center.getX()+(windowWidth/2),Center.getY());
+		 */
+
+		for (int col = 0; col < world.getAreaBlocks().length; col++) { // print
+																		// out
+																		// background
+																		// -
+																		// water,
+																		// dirt
+			for (int row = 0; row < world.getAreaBlocks()[col].length; row++) {
+
+				if (world.getAreaBlocks()[col][row].isWater()) {
+					g.drawImage(
+							mainView.getImages().get("isoWater"), // image
+							twoDToIsoX(col, row) + 450,
+							twoDToIsoY(col, row) + 15, // location
+							tileWidth, tileHeight, // size
+							null); // no observer
+				} else {
+
+					g.drawImage(
+							mainView.getImages().get("isoSoil"), // image
+							twoDToIsoX(col, row) + 450,
+							twoDToIsoY(col, row) + 15, // location
+							tileWidth, tileHeight, // size
+							null); // no observer
+
+				}
+			}
+		}
+	}
+
+	public void paintField(Graphics g) {
+		Field world = mainView.getCurrentGame().getState().getGameField();
+
+		int viewHeight = getHeight(); // FIXME do only on resize
+		int viewWidth = getWidth(); // FIXME do only on resize
+		int imgHeight = viewHeight / tileHeight;
+		int imgWidth = viewWidth / tileWidth;
+
+		for (int col = 0; col < world.getAreaBlocks().length; col++) { // print
+																		// out
+																		// background
+																		// -
+																		// water,
+																		// dirt
+			for (int row = 0; row < world.getAreaBlocks()[col].length; row++) {
+				if (world.getAreaBlocks()[col][row].isWater()) {
+
+					g.drawImage(mainView.getImages().get("water"), // image
+							row * imgWidth, col * imgHeight, // location
+							imgWidth, imgHeight, // size
+							null); // no observer
+				} else {
+
+					g.drawImage(mainView.getImages().get("dirt"), // image
+							row * imgWidth, col * imgHeight, // location
+							imgWidth, imgHeight, // size
+							null); // no observer
+
+				}
+			}
+		}
+	}
+
+	/*
+	 * These two methods are what take the actual i and j position in our 2D
+	 * array of blocks and converts that two a visual, isometric, representation
+	 * in the view.
+	 */
+
+	private int twoDToIsoX(int x, int y) {
+		int isoX;
+		isoX = (int) ((x * tileWidth / 2) - (y * tileWidth / 2));
+		return isoX;
+	}
+
+	private int twoDToIsoY(int x, int y) {
+		int isoY;
+		isoY = (int) ((x * tileHeight / 2) + (y * tileHeight / 2));
+		return isoY;
+	}
+
+	/*
+	 * These two methods are going to be used to convert the isometric, visual,
+	 * coordinates to the coordinates within our actual field array. These would
+	 * be used with the calculation of bounds for what's to be printed on screen
+	 * but I haven't quite figured out their implementation yet.
+	 */
+
+	private double isoToI(double isoX, double isoY) {
+		double twoDX = ((isoY / ((getHeight() / tileHeight) / 2)) + (isoX / ((getWidth() / tileWidth) / 2)) / 2);
+		return twoDX;
+	}
+
+	private double isoToJ(double isoX, double isoY) {
+		double twoDY = ((isoY / ((getHeight() / tileHeight) / 2)) - (isoX / ((getWidth() / tileWidth) / 2)) / 2);
+		return twoDY;
+	}
+
+	/**
+	 * Paints the plants on the field. Everything.
+	 */
+	private void isoPaintPlants(Graphics g) { // TODO REALLY TEMPORARY
+		int viewHeight = getHeight(); // FIXME do only on resize
+		int viewWidth = getWidth(); // FIXME do only on resize
+		int imgHeight = viewHeight / tileWidth;
+		int imgWidth = viewWidth / tileHeight;
+
+		for (Settable cur : mainView.getCurrentGame().getState().getPlants()) {
+			g.drawImage(
+					mainView.getImages().get(cur.getName()), // image
+					twoDToIsoX((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) + 450,
+					twoDToIsoY((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) + 15, /*
+																	 * location
+																	 */
+					tileWidth, tileHeight, // size
+					null); // no observer
+		}
+
+		/*
+		 * Field field = mainView.getCurrentGame().getState().getGameField();
+		 * //for consise code. // // for (int
+		 * col=0;col<field.getAreaBlocks().length;col++){ // for (int
+		 * row=0;row<field.getAreaBlocks()[col].length;row++){ // if
+		 * (field.getAreaBlocks()[col][row].getEntityOnTile()!=null){ //
+		 * System.out.print(row+" "+col); //
+		 * g.drawImage(mainView.getImages().get
+		 * (field.getAreaBlocks()[col][row].getEntityOnTile().getName()),
+		 * //image // row*imgWidth, col*imgHeight, //location // imgWidth,
+		 * imgHeight, //size // null); //no observer // } // } // }
+		 */
+	}
+
+	private void isoPaintEntities(Graphics g) {
+		int viewHeight = getHeight(); // FIXME do only on resize
+		int viewWidth = getWidth(); // FIXME do only on resize
+		int imgHeight = viewHeight / tileWidth;
+		int imgWidth = viewWidth / tileHeight;
+
+		for (Entity cur : mainView.getCurrentGame().getState().getEntities()) {
+			g.drawImage(
+					mainView.getImages().get(cur.getName()), // image
+					twoDToIsoX((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) + 450,
+					twoDToIsoY((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) + 15, // location
+					imgWidth, imgHeight, // size
+					null); // no observer
+		}
+	}
+
+	private void paintPlants(Graphics g) { // TODO REALLY TEMPORARY
+		int viewHeight = getHeight(); // FIXME do only on resize
+		int viewWidth = getWidth(); // FIXME do only on resize
+		int imgHeight = viewHeight / tileHeight;
+		int imgWidth = viewWidth / tileWidth;
+
+		for (Settable cur : mainView.getCurrentGame().getState().getPlants()) {
+			g.drawImage(mainView.getImages().get(cur.getName()), // image
+					(int) (cur.getPosition().getX() * imgWidth), (int) (cur
+							.getPosition().getY() * imgHeight), // location
+					imgWidth, imgHeight, // size
+					null); // no observer
+		}
+
+		/*
+		 * Field field = mainView.getCurrentGame().getState().getGameField();
+		 * //for consise code. // // for (int
+		 * col=0;col<field.getAreaBlocks().length;col++){ // for (int
+		 * row=0;row<field.getAreaBlocks()[col].length;row++){ // if
+		 * (field.getAreaBlocks()[col][row].getEntityOnTile()!=null){ //
+		 * System.out.print(row+" "+col); //
+		 * g.drawImage(mainView.getImages().get
+		 * (field.getAreaBlocks()[col][row].getEntityOnTile().getName()),
+		 * //image // row*imgWidth, col*imgHeight, //location // imgWidth,
+		 * imgHeight, //size // null); //no observer // } // } // }
+		 */
+	}
+
+	private void paintEntities(Graphics g) {
+		int viewHeight = getHeight(); // FIXME do only on resize
+		int viewWidth = getWidth(); // FIXME do only on resize
+		int imgHeight = viewHeight / tileHeight;
+		int imgWidth = viewWidth / tileWidth;
+
+		for (Entity cur : mainView.getCurrentGame().getState().getEntities()) {
+			g.drawImage(mainView.getImages().get(cur.getName()), // image
+					(int) (cur.getPosition().getX() * imgWidth), (int) (cur
+							.getPosition().getY() * imgHeight), // location
+					imgWidth, imgHeight, // size
+					null); // no observer
+		}
+	}
+
+	public int getBlockHeight() {
+		return getHeight() / tileHeight;
+	}
+
+	public int getBlockWidth() {
+		return getWidth() / tileWidth;
+	}
+
+}

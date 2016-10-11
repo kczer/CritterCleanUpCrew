@@ -1,0 +1,259 @@
+package enitities;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+import settables.Settable;
+
+
+import model.Actionable;
+import model.GameState;
+import model.Position;
+
+public abstract class Entity implements Actionable, java.io.Serializable{
+	Position position;
+	boolean friendly;
+	Actionable target; //target at which its going
+	double hitPoints;
+	int ticksAlive;
+	
+	/**
+	 * For purposes of character creation, please don't use it everywhere
+	 */
+	protected Entity(){
+		//for purposes of character creation, don't
+	}
+	
+	public Entity(Position p){
+		friendly = getParameters().get("Friendly")==1; //it's friendly.
+		position=p;
+		target=null;
+		hitPoints = getParameters().get("MaxHP");
+		ticksAlive=0;
+	}
+	
+	/**
+	 * Returns the name of this Entity, specific 
+	 * to the class. This name appears in the
+	 * game UI itself, so choose wisely.
+	 */
+	public abstract String getName();
+	
+	public Position getPosition(){
+		return position;
+	}
+	
+	public void setPosition(Position p){
+		position=p;
+	}
+	
+	public boolean isFriendly(){
+		return friendly;
+	}
+	
+	/**
+	 * Loads the parameters in a entity-specific way and returns them in a map.
+	 */
+	public static Map<String, Double> loadParameters(String filename) {
+		Scanner inFile;
+		Map<String, Double> parameters = new HashMap<String, Double>();
+		try {
+			inFile = new Scanner(new File(filename));
+			while (inFile.hasNextLine()){
+				String line = inFile.nextLine(); //each line should contain parameter and value
+				String[] param = line.split("[ ]");
+				parameters.put(param[0], Double.parseDouble(param[1]));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+		inFile.close();
+		return parameters;
+	}
+	
+	public double getHitPoints() {
+		return hitPoints;
+	}
+	
+	public void setHitPoints(double number) {
+		hitPoints = number;
+		
+	}
+	
+	/**
+	 * Returns the static parameter map associated with the class.
+	 */ 
+	public abstract Map<String, Double> getParameters();
+	
+	/**
+	 * Standard action for an entity. If doesn't have a target, searches for one 
+	 * (friendly searches only for Entities, non-friendlies both for Entities and 
+	 * Plants). 
+	 * Moves in range of target in a strange line. Once in range - attacks.
+	 * Once target died- looks for a new target.
+	 */
+	public boolean doAction(GameState g) {
+		ticksAlive++; //alive for ticks
+		if (target==null||target.getHitPoints()<0){ //if target is dead or have no target
+			Entity et = findEntityTarget(g, !friendly); //search for common entity target
+			
+			if (!friendly){ //if enemy, search for plants and pick
+				
+				Settable st = findPlantTarget(g);
+				
+				if (et!=null && st!=null){ //if both exist, choose one
+					target = st.getPosition().distanceTo(position)<
+							 et.getPosition().distanceTo(position)?
+									 st:et;
+				}
+				else{
+					target = et!=null?et:st; //else stick the hopefully non-null target.
+				}
+			}
+			else{
+				target = et; //else what we found works.
+			}
+			
+		}
+		else if (inRangeOfTarget(g)){//else check if range of target
+			damageTarget(g);
+		}
+		else{ //else move to target
+			moveToTarget(g);
+		}
+		return true;
+	}
+	
+	
+	/**
+	 * Makes the entity reconsider it's target, i.e.
+	 * it checks if the target still exists and acts accordingly.
+	 * Does not change targets.
+	 */
+	public boolean forceAction(GameState g){
+		 if (target instanceof Settable && !g.getPlants().contains(target)){ // if it's  plant that was removed
+			 //look for target as usual\
+			 Entity et = findEntityTarget(g, !friendly); //search for common entity target
+			 if (!friendly){ //if enemy, search for plants and pick
+					
+				Settable st = findPlantTarget(g);
+				
+				if (et!=null && st!=null){ //if both exist, choose one
+					target = st.getPosition().distanceTo(position)<
+							 et.getPosition().distanceTo(position)?
+									 st:et;
+				}
+				else{
+					target = et!=null?et:st; //else stick the hopefully non-null target.
+				}
+			}
+			else{
+				target = et; //else what we found works.
+			}
+		 }
+		 return true;
+	}
+	
+	/**
+	 * Finds target using typical search-for minimum
+	 * algorithm over all the plants.
+	 * Usually to be used by enemies.
+	 */
+	protected Settable findPlantTarget(GameState g){
+		double distance = Double.MAX_VALUE;
+		Settable target=null;
+		for (Settable cur: g.getPlants()){ //searches over plants
+			
+			double d = position.distanceTo(cur.getPosition());
+			
+			if (d<distance&& //if in range
+					(cur.getParameters().get("Friendly")==1)){ //and if friendly
+				target= cur;
+			}
+		}
+		return target;
+	}
+	
+	/**
+	 * Finds target using typical search-for minimum
+	 * algorithm over all the entities.
+	 * Specify what to look for- friendly or not.
+	 */
+	protected Entity findEntityTarget(GameState g, boolean friendly){
+		ArrayList<Double> weights = new ArrayList<Double>(); //weights for probabilities of entities
+		double sumOfWeights=0;
+		Entity target=null;
+		ArrayList<Entity> entities = (ArrayList<Entity>)g.getEntities(); //FIXME
+		for (Entity cur: entities){ //searches over entities
+			double d = getPosition().distanceTo(cur.getPosition()); //get the distance
+			weights.add(Math.pow(0.8,d)); //add the weight in
+			sumOfWeights+=Math.pow(0.8,d); //add up the weights
+		}
+		double counter=1; //counter for random purposes
+		double random = g.getGenerator().nextDouble(); //get the random number
+		for (int i=0;i<weights.size();i++){ //go through every weight 
+			double weight = weights.get(i)/sumOfWeights;//and scale them
+			counter-=weight; //subtract the weight
+			if (counter<random&&!(entities.get(i).isFriendly()^friendly)){ //if we got the wait and it isn't friendly
+				target = entities.get(i);
+				break;
+			}
+		}
+		
+		return target;
+	}
+	
+	/**
+	 * Returns true if entity is in range of its non-null
+	 * target, returns false otherwise.
+	 */
+	protected boolean inRangeOfTarget(GameState g){
+		if (target==null)
+			return false;
+		return getPosition().distanceTo(target.getPosition())<getParameters().get("Range");
+	}
+	
+	/**
+	 * Damages current target by the damage that the entity can deal.
+	 */
+	protected void damageTarget(GameState g){
+		double damage = (getParameters().get("BaseDamage")+getParameters().get("DamageSpread"))* //base
+						g.perTickMultiplier(); // TickSpeed;
+		target.setHitPoints(target.getHitPoints()-damage);
+	}
+	
+	/**
+	 * Moves towards the current target in a straight line at speed given by parameters.
+	 * Speed is modified by water and terrain.
+	 */
+	protected void moveToTarget(GameState g){
+		double motionX= position.getUnitXComponent(target.getPosition())* //direction 
+				getParameters().get("Speed")* //speed
+				g.perTickMultiplier(); // TickSpeed
+		double motionY=position.getUnitYComponent(target.getPosition())* //direction 
+				getParameters().get("Speed")* //speed
+				g.perTickMultiplier(); // TickSpeed
+				
+		
+				
+		if (g.getGameField().getAreaBlocks()[position.getIntX()][position.getIntY()].isWater()){ //if is in water
+			motionX*=getParameters().get("WaterModifier"); //change speed
+			motionY*=getParameters().get("WaterModifier");
+		}
+		double newX = position.getX()+motionX;
+		double newY = position.getY()+motionY; //old
+		Position newPos = new Position(newX, newY);
+		position= newPos;
+	}
+
+	public int getTicksAlive() {
+		return ticksAlive;
+	}
+	
+	
+}

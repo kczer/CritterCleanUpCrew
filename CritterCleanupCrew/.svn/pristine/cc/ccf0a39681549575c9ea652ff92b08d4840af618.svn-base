@@ -1,0 +1,51 @@
+package listeners;
+
+import java.awt.event.MouseEvent;
+
+import javax.swing.event.MouseInputListener;
+
+public class ToolboxMouseListener implements MouseInputListener{
+
+	@Override
+	public void mouseClicked(MouseEvent event) {
+		System.out.println("Toolbox "+"Down "+event.getX()+", "+event.getY());
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent event) {
+		System.out.println("Toolbox "+"Enter "+event.getX()+", "+event.getY());
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent event) {
+		System.out.println("Toolbox "+"Exit "+event.getX()+", "+event.getY());
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent event) {
+		System.out.println("Toolbox "+"Up "+event.getX()+", "+event.getY());
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

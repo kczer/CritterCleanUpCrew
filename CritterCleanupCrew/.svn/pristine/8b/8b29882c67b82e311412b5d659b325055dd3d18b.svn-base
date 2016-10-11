@@ -1,0 +1,16 @@
+package buttons;
+
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+
+import views.GameView;
+import views.ToolboxView;
+
+public abstract class GameButton extends JButton implements ActionListener{
+	protected ToolboxView toolboxView;
+	
+	public GameButton(ToolboxView tbv){
+		toolboxView= tbv;
+	}
+}

@@ -1,0 +1,11 @@
+Cost 200
+SpawnTime 13
+SpawnTimeSpread 1
+SpawnLocSpread 3
+Happiness 0.03
+MaxHP 10
+Native 1
+DigUpMoney 100
+Friendly 1
+WaterProximityEffect 1.15
+WaterProximityDefense 1.1

@@ -1,0 +1,24 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import javax.swing.JFrame;
+
+
+import javax.swing.JPanel;
+
+import org.junit.Test;
+
+
+
+
+import views.*;
+
+public class ViewTests {
+	
+	@Test public void GameView_General(){
+		GameView gv = new GameView();
+		assertTrue(gv instanceof JPanel);
+	}
+
+}

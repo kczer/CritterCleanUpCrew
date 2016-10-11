@@ -1,0 +1,82 @@
+package model;
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+import moves.Move;
+import players.HumanPlayer;
+import players.Player;
+
+
+public class Game implements java.io.Serializable {
+	
+	private GameState state;
+	private Map<String, Player> players;
+	
+	/**
+	 * No arg constructor for the game. Creates a no-arg state
+	 * as well as an ArrayList for player list.
+	 */
+	public Game(){
+		state = new GameState();
+		players = new HashMap<String, Player>();
+		
+		players.put("HumanPlayer", new HumanPlayer(this, state.getPlayerCharacters().get("Elk")));
+	}
+	
+	/**
+	 * Provokes a single step in the game. The step
+	 * size defines how smooth the game runs and is 
+	 * decided later. In general, here all entities
+	 * and players are requested to generate moved,
+	 * all generated moves are made and needed updates
+	 * are made.
+	 */
+	public void tick(){
+		for (String playerName: players.keySet()){ //let players make their moves
+			Move current = players.get(playerName).getNextMove(state); //get the next move for this state
+			if (current!=null&&current.isValid(state)){ //if you are allowed to do the move
+				current.makeMove(state); //make the move
+			}
+		}
+		state.tick(); //let the state tick
+	};
+	
+	/**
+	 * Defines the step size for game ticks. A higher
+	 * tick speed results in a smaller step and smoother
+	 * gameplay. Returns ms per tick.
+	 */
+	public int tickSpeed(){
+		return state.getTickSpeed(); //let the state define fps?
+	};
+	
+	/**
+	 * Adds a player to the game. Most likely used only
+	 * when launching the game, but other options are 
+	 * possible. Returns true if the the player was added
+	 * successfully, false upon failure (player is already
+	 * there and whatnot).
+	 */
+	public boolean addPlayer(Player p){
+		for (String playerName:players.keySet()){ //for every player
+			if ( players.get(playerName)==p) //check if player is already here, at least by reference
+				return false; //can't add
+		}
+		players.put(p.getID(), p); //add him in!
+		return true; //success
+	};
+	
+	public Game copy(){
+		return null;
+	}
+	
+	public Map<String, Player> getPlayers(){
+		return players;
+	}
+	
+	public GameState getState(){
+		return state;
+	}
+}

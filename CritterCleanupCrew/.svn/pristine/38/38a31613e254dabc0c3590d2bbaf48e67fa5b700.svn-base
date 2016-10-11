@@ -1,0 +1,275 @@
+package views;
+
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+import java.io.File;
+
+import java.io.FileNotFoundException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+
+import java.util.HashMap;
+
+import java.util.Map;
+import java.util.Scanner;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
+
+import buttons.*;
+
+public class ToolboxView extends JPanel {
+	
+	GameView mainView;
+	double bottomPartWeight = 0.15;
+	int buttonNumber=4;
+	int activeTab; //which button is pressed right now
+	Map<String, GameButton> allButtons; //all the buttons which can exist
+	ArrayList<GameButton>[] buttonPanels;
+	int locationInPanels;
+
+	public ToolboxView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.mainView = mainView;
+		setLayout(new GridBagLayout());
+		locationInPanels=0; //have leftmost appear first
+		activeTab=2;  //the first non-bottom panel
+		
+		loadButtons();
+		
+		initializeTopButtons();
+		initializeBottomButtons();
+	}
+	
+//	public void paint(Graphics g){
+//		super.paint(g);
+//		this.
+//	}
+	
+	/**
+	 * Loads all the buttons from the file with button types into the map as well
+	 * as into their respective collections. Also makes the collections
+	 */
+	private void loadButtons(){
+		String fileName = "data/buttonSettings.txt";
+		allButtons = new HashMap<String,GameButton>(); //instantiate the hashmap
+		try {
+			Scanner fin = new Scanner(new File(fileName));
+			int numberOfScans = Integer.parseInt(fin.nextLine()); //get the number of scan by using the full line
+			int location=0; //start from first panel
+			buttonPanels =  new ArrayList[numberOfScans]; //FIXME
+			fin.nextLine(); //skip a line
+			
+			//first scan, it's special
+			String line = fin.nextLine();
+			buttonPanels[0] = new ArrayList<GameButton>(); //make the panel array
+			while(!line.equals("")){
+				String[] split = line.split("[ ]"); //split string
+				String name = split[0]; //get the name
+				int panelNum = Integer.parseInt(split[1]); //get the panel number
+				GameButton gb = new BottomButton(this, name, panelNum); //make a button with its settings
+				buttonPanels[0].add(gb); //put it into the bottom collection
+				allButtons.put(name, gb); //put it into the map of all buttons
+				line = fin.nextLine(); //get the next line
+				gb.setToolTipText("Click this button to disable the middle button.");
+			}
+			
+			location++; //now looking at second panel
+			String className;
+			while(fin.hasNext()){ //while not end of file
+				//fin.nextLine(); //skip a line
+				buttonPanels[location] = new ArrayList<GameButton>(); //make the panel array
+				className = fin.nextLine(); //get the name of class buttons
+				Class buttonClass = Class.forName(className); //get the class associated with the class name
+				Constructor<GameButton> constructor = buttonClass.getConstructor( //get the constructor
+						Class.forName("views.ToolboxView"),  //with a toolboxview
+						"".getClass()); //and a string parameter
+				line= fin.nextLine(); //get next line with name
+				while (!line.equals("")){ //while it is a meaningful line
+					String buttonName = line; //get the name of the button
+					GameButton theButton = constructor.newInstance(this, buttonName); //finally make a button
+					buttonPanels[location].add(theButton); //put the button into the panel.
+					allButtons.put(buttonName, theButton); //put them into the map of buttons
+					line= fin.nextLine(); //get the next line (for checking)
+				}
+				location++; //now looking at next panel
+			}
+			
+			
+			fin.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Makes top buttons, displays the first tab
+	 */
+	private void initializeTopButtons(){
+		JButton l = new ShiftButton(this, -1); //make left button
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0; //far left
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=1-bottomPartWeight;
+		add(l,c);
+		
+		int topNumberD = topNumber(1); //use first tab
+		
+		for (int j=0;j<topNumberD;j++){ //for every button to display
+			c = new GridBagConstraints(); //make new constraints
+			c.gridx=j+1; //location horizontal
+			c.gridy=0; //top buttons
+			c.fill=GridBagConstraints.BOTH; //expand
+			c.weightx=1./buttonNumber; //equal weights
+			c.weighty=1-bottomPartWeight; //top weight
+			add(buttonPanels[activeTab].get(j),c); //put in with constraints, but starting from beginning
+		}	
+		
+		JButton r = new ShiftButton(this, 1); //make right button
+		c = new GridBagConstraints();
+		c.gridx=buttonNumber+1; //far right
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=1-bottomPartWeight;
+		add(r,c);
+	}
+	
+	/**
+	 * Makes the lower buttons from the arraylist of buttons
+	 */
+	private void initializeBottomButtons(){
+		JButton l = new JButton(); //make left btton
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0; //veryleft
+		c.gridy=1;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=bottomPartWeight;
+		add(l,c);
+		
+		int topNumberD = topNumber(0); //how many are there in the bottom panel?
+		for (int i=1;i<topNumberD+1;i++){ //for every button to be displayed
+			c = new GridBagConstraints(); //make new constraints
+			c.gridx=i; //location horizontally
+			c.gridy=1; //down low
+			c.fill=GridBagConstraints.BOTH; //expand
+			c.weightx=1./buttonNumber; //equal
+			c.weighty=bottomPartWeight; //down low
+			add(buttonPanels[0].get(i-1),c); //add the button from the first panel with the constraints.
+		}
+		
+		JButton r = new JButton(); //make right button
+		c = new GridBagConstraints();
+		c.gridx=buttonNumber+1; //very right
+		c.gridy=1;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=bottomPartWeight;
+		add(r,c);
+	}
+
+	/**
+	 * Sets the current panel to display and updates the seen buttons.
+	 */
+	public void setCurrentPanel(int i) {
+		//TODO
+		if (i==activeTab)  return; //if want to set what was before- do nothing
+			
+		int topNumberR = topNumber(activeTab);
+		
+		for (int j=0;j<topNumberR;j++){
+			remove(buttonPanels[activeTab].get(locationInPanels+j)); //remove what used to be here
+		}
+		
+		int topNumberD = topNumber(i);
+		
+		for (int j=0;j<topNumberD;j++){ //for every button to display
+			GridBagConstraints c = new GridBagConstraints(); //make new constraints
+			c.gridx=j+1; //location horizontal
+			c.gridy=0; //top buttons
+			c.fill=GridBagConstraints.BOTH; //expand
+			c.weightx=1./buttonNumber; //equal weights
+			c.weighty=1-bottomPartWeight; //top weight
+			add(buttonPanels[i].get(j),c); //put in with constraints, but starting from beginning
+		}	
+		//repaint();
+		updateUI();
+		activeTab=i; //set the active tab to what we changed to
+		locationInPanels=0;
+	}
+	
+	/**
+	 * Returns how many buttons should be shown in the view
+	 * for the given panel.
+	 */
+	private int topNumber(int i){
+		return  buttonPanels[i].size()>4? //number of buttons to display is either
+				4:buttonPanels[i].size(); //4 if many buttons or all the buttons if few
+	}
+	
+	/**
+	 * Shifts the buttons to scroll through panels. 
+	 * A negative number scrolls left to right,
+	 * a positive right to left. Once it hits the edge-
+	 * there is no more motion.
+	 */
+	public void shiftPanels(int i){
+		if (i==0) return; //useless
+		
+		if (buttonPanels[activeTab].size()<=buttonNumber) return; //if there is no possibility of shifting - do nothing
+		
+		if (i+locationInPanels<0) return; //if at solid left don't do it
+		
+		if (i+locationInPanels+buttonNumber>buttonPanels[activeTab].size()) return; //if at pure right
+		
+		for (int j=0;j<buttonNumber;j++){ //for every button visible
+			remove(buttonPanels[activeTab].get(j+locationInPanels)); //remove it;
+		}
+		for (int j=0;j<buttonNumber;j++){ //now readd them
+			GridBagConstraints c = new GridBagConstraints(); //make new constraints
+			c.gridx=j+1; //location horizontal
+			c.gridy=0; //top buttons
+			c.fill=GridBagConstraints.BOTH; //expand
+			c.weightx=1./buttonNumber; //equal weights
+			c.weighty=1-bottomPartWeight; //top weight
+			add(buttonPanels[activeTab].get(j+i+locationInPanels),c); //put in with constraints, but starting from beginning, shift
+															//button number by i
+		}
+		locationInPanels+=i; //TODO
+		updateUI();
+	}
+	
+	public GameView getMainView(){
+		return mainView;
+	}
+	
+}

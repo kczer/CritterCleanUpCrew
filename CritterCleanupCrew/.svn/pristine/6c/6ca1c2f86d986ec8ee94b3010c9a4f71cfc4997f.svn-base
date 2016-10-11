@@ -1,0 +1,109 @@
+package listeners;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+
+import javax.swing.event.MouseInputListener;
+
+import animations.AnimationImageSequence;
+import animations.ExplosionAnimationImageSequence;
+import model.Position;
+import views.GameView;
+import views.InteractionView;
+
+public class GameKeyListener implements KeyListener {
+
+	private GameView gameView;
+	private InteractionView iView;
+	private double motionSpeed=5; //camera motion speed
+
+
+	public GameKeyListener(GameView gameView){
+		this.gameView = gameView;
+		iView = (InteractionView) gameView.getSubviews().get("Interaction");
+	}
+
+	@Override
+	public void keyPressed(KeyEvent event) {
+		
+		switch(event.getKeyCode()){
+		case KeyEvent.VK_UP:{
+			//System.out.println("UP");
+			iView.setOverHeadOffsetY(iView.getOverHeadOffsetY()-motionSpeed);
+			break;
+		}
+		case KeyEvent.VK_DOWN:{
+			//System.out.println("DOWN");
+			iView.setOverHeadOffsetY(iView.getOverHeadOffsetY()+motionSpeed);
+			break;
+		}
+		case KeyEvent.VK_RIGHT:{
+			//System.out.println("RIGHT");
+			iView.setOverHeadOffsetX(iView.getOverHeadOffsetX()+motionSpeed);
+			break;
+		}
+		case KeyEvent.VK_LEFT:{
+			//System.out.println("LEFT");
+			iView.setOverHeadOffsetX(iView.getOverHeadOffsetX()-motionSpeed);
+			break;
+		}
+		case KeyEvent.VK_S:{ //used to save the game
+			gameView.saveGame();
+			break;
+		}
+		case KeyEvent.VK_L:{ //used to load the game
+			gameView.loadGame();
+			break;
+		}
+		case KeyEvent.VK_Z:{ //switches between isometric and normal views
+			Position p = iView.getCenterPosition(); //get the center before switching
+			
+			iView.switchIso();
+			MouseMotionListener[] mmls = iView.getMouseMotionListeners(); //get mouse motion
+			MouseListener[] mils = iView.getMouseListeners();
+			
+			iView.removeMouseMotionListener(mmls[0]); //remove the only mouse motion listener there should be
+			iView.removeMouseListener(mils[0]); //remove the only mouse listener there should be
+			
+			if (iView.isIso()){ //if we've switched to iso
+				IsoInteractionMouseListener iil = new IsoInteractionMouseListener(gameView); //make the listener
+				iil.lastDragPosition = ((InteractionMouseListener)mils[0]).lastDragPosition; //set dragging positions to be equal
+				iView.addMouseListener(iil); //and add it in
+				iView.addMouseMotionListener(iil); //both ways
+				
+				iView.centerAtPosition(p); //recenter
+				
+			}else{ //else we've switched to the normal view
+				InteractionMouseListener il = new InteractionMouseListener(gameView); //make the listener
+				il.lastDragPosition = ((InteractionMouseListener)mils[0]).lastDragPosition; //set dragging positions to be equal
+				iView.addMouseListener(il); //and add it in
+				iView.addMouseMotionListener(il); //both ways
+				
+				iView.centerAtPosition(p); //recenter
+			}
+			
+			break;
+		}
+		case KeyEvent.VK_Q:{
+			iView.getAnimations().add(new ExplosionAnimationImageSequence(gameView, null));
+			break;
+		}
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent event) {
+		//System.out.println(event.getKeyChar());
+
+	}
+
+	@Override
+	public void keyTyped(KeyEvent event) {
+		//System.out.println(event.getKeyChar());
+
+	}
+
+}

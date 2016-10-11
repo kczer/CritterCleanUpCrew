@@ -1,0 +1,116 @@
+package model;
+
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import moves.Move;
+import players.AIPlayer;
+import players.HumanPlayer;
+import players.Player;
+
+
+public class Game implements java.io.Serializable {
+	
+	private GameState state;
+	private Map<String, Player> players;
+	private Collection<Move> madeMoves; //what what made last tick
+	
+	/**
+	 * No arg constructor for the game. Creates a no-arg state
+	 * as well as an ArrayList for player list.
+	 */
+	public Game(){
+		state = new GameState();
+		players = new HashMap<String, Player>();
+		
+		initPlayersAndChars();
+		madeMoves = new ArrayList<Move>();
+	}
+	
+	/**
+	 * Provokes a single step in the game. The step
+	 * size defines how smooth the game runs and is 
+	 * decided later. In general, here all entities
+	 * and players are requested to generate moved,
+	 * all generated moves are made and needed updates
+	 * are made.
+	 */
+	public void tick(){
+		madeMoves.clear(); //nothing made
+		for (String playerName: players.keySet()){ //let players make their moves
+			Move current = players.get(playerName).getNextMove(state); //get the next move for this state
+			if (current!=null&&current.isValid(state)){ //if you are allowed to do the move
+				current.makeMove(state); //make the move
+				madeMoves.add(current); //we made it
+			}
+		}
+		state.tick(); //let the state tick
+	};
+	
+	/**
+	 * Defines the step size for game ticks. A higher
+	 * tick speed results in a smaller step and smoother
+	 * gameplay. Returns ms per tick.
+	 */
+	public int tickSpeed(){
+		return state.getTickSpeed(); //let the state define fps?
+	};
+	
+	/**
+	 * Adds a player to the game. Most likely used only
+	 * when launching the game, but other options are 
+	 * possible. Returns true if the the player was added
+	 * successfully, false upon failure (player is already
+	 * there and whatnot).
+	 */
+	public boolean addPlayer(Player p){
+		for (String playerName:players.keySet()){ //for every player
+			if ( players.get(playerName)==p) //check if player is already here, at least by reference
+				return false; //can't add
+		}
+		players.put(p.getID(), p); //add him in!
+		return true; //success
+	};
+
+	public Game copy(){
+		return null;
+	}
+	
+	public Map<String, Player> getPlayers(){
+		return players;
+	}
+	
+	public GameState getState(){
+		return state;
+	}
+	
+	/**
+	 * Initializes the players and links the characters.
+	 */
+	private void initPlayersAndChars(){
+		HumanPlayer h = new HumanPlayer(this,  state.getPlayerCharacters().get("Elk"));
+		state.getPlayerCharacters().get("Elk").setCurrentController(h);
+		
+		AIPlayer ai1 = new AIPlayer(this, "AI1", state.getPlayerCharacters().get("Fox"));
+		state.getPlayerCharacters().get("Fox").setCurrentController(ai1);
+		
+		AIPlayer ai2 = new AIPlayer(this, "AI2", state.getPlayerCharacters().get("Rabbit"));
+		state.getPlayerCharacters().get("Rabbit").setCurrentController(ai2);
+		
+		AIPlayer ai3 = new AIPlayer(this, "AI3", state.getPlayerCharacters().get("Squirrel"));
+		
+		state.getPlayerCharacters().get("Squirrel").setCurrentController(ai3);
+		
+		players.put("HumanPlayer",h);
+		players.put("AI1", ai1);
+		players.put("AI2", ai2);
+		players.put("AI3", ai3);
+	}
+
+	public Collection<Move> getMadeMoves() {
+		return madeMoves;
+	}
+}

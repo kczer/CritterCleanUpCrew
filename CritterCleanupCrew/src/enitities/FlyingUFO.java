@@ -1,0 +1,73 @@
+package enitities;
+
+import java.util.Map;
+
+import settables.UFO;
+import model.Block;
+import model.GameState;
+import model.Position;
+
+public class FlyingUFO extends Entity {
+	protected static Map<String, Double> parameters;
+	
+	public FlyingUFO(Position p){
+		super(p);
+	}
+	
+	@Override
+	public String getName() {
+		return "Flying UFO";
+	}
+
+	@Override
+	public Map<String, Double> getParameters() {
+		if (parameters==null){
+			loadParameters();
+		}
+		return parameters;
+	}
+	
+	/**
+	 * A special UFO-specific action. Flies to its target, after which
+	 * it "lands", placing a new UFO (settable) on it and killing the entity (itself)
+	 */
+	public boolean doAction(GameState g){
+		if (!inRangeOfTarget(g)){ //if we have not reached our target
+			moveToTarget(g); //move towards the target
+		}
+		else{ //else we've reached the target
+			
+			
+			int x = position.getIntX(); //get the position
+			int y = position.getIntY(); //in both coordinates
+			
+			Block landingBlock = g.getGameField().getAreaBlocks()[x][y]; //get the the landing block
+			if (landingBlock.getEntityOnTile()!=null){ //if there's something there, placed while flying to it
+				landingBlock.getEntityOnTile().setHitPoints(-1); //kill it! What else can we possibly do? We've squashed it
+			}
+			
+			UFO landed = new UFO(); //the UFO to be placed
+			landed.setPosition(new Position(x+0.5, y+0.5));  //give it it's position with the half-ints
+			landingBlock.setEntityOnTile(landed); //set the UFO on the block
+			g.getPlants().add(landed); //tell the state that we have a UFO
+			
+			landed.setHitPoints(hitPoints/getParameters().get("MaxHP")*landed.getParameters().get("MaxHP")); //set same percentange of hp for landed
+			hitPoints=-1; //commit suicide.
+		}
+		return true;
+	}
+	
+	/**
+	 * Tells the UFO where it should be flying.
+	 */
+	public void setTargetLocation(Position p){
+		Entity tempTarget = new Catterpillar(p); //make an imaginary target to move to.
+		target = tempTarget;
+	}
+
+	@Override
+	public void loadParameters() {
+		parameters=Entity.loadParameters("data/FlyingUFO.txt");
+	}
+
+}

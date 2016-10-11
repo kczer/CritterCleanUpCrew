@@ -1,0 +1,11 @@
+Cost 400
+SpawnTime 30
+SpawnTimeSpread 1
+SpawnLocSpread 3
+Happiness -0.04
+MaxHP 8
+PlantMultiplyTime 30
+MultiplySpread 2.1
+Native -1
+DigUpMoney 100
+Friendly 1

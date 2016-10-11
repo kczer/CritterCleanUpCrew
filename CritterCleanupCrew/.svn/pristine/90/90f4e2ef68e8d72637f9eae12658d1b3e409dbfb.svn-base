@@ -1,0 +1,90 @@
+package listeners;
+
+import java.awt.event.MouseEvent;
+
+import javax.swing.event.MouseInputListener;
+
+import model.Position;
+import moves.PlacingMove;
+import settables.Settable;
+import views.*;
+
+public class InteractionMouseListener implements MouseInputListener {
+	GameView gameView;
+	
+	public InteractionMouseListener(GameView gameView){
+		this.gameView = gameView;
+	}
+	@Override
+	public void mouseClicked(MouseEvent event) {
+		System.out.println("Interaction "+"Down "+event.getX()+", "+event.getY());
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent event){
+		System.out.println("Interaction "+"Enter "+event.getX()+", "+event.getY());
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent event) {
+		System.out.println("Interaction "+"Exit "+event.getX()+", "+event.getY());
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent event) {
+		String placeClass = gameView.getPlaceClass();
+		if (placeClass!=null){ //if there is one
+			gameView.setPlaceClass(null); //say "we got it"
+			//and roll
+			try {
+				Class toPlace = Class.forName(placeClass);
+				Settable plant = (Settable) toPlace.newInstance();
+				int height = ((InteractionView)gameView.getSubviews().get("Interaction")).getBlockHeight();
+				int width = ((InteractionView)gameView.getSubviews().get("Interaction")).getBlockWidth();
+				int x = event.getX()/width;
+				int y = event.getY()/height;
+				Position pos = new Position(x,y);
+				PlacingMove pm = new PlacingMove(plant, pos);
+				if (pm.isValid(gameView.getCurrentGame().getState())){
+					pm.makeMove(gameView.getCurrentGame().getState());
+				}
+				
+			} catch (ClassNotFoundException e) {
+				System.out.println(placeClass);
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else{ //I guess we want something else done?
+			
+		}
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent event) {
+		System.out.println("Interaction "+"Up "+event.getX()+", "+event.getY());
+
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

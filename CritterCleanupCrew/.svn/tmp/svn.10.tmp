@@ -1,0 +1,455 @@
+package views;
+
+import java.awt.Color;
+
+import java.awt.Graphics;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+
+import java.util.Collection;
+
+import javax.swing.JPanel;
+
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import settables.Settable;
+
+import model.Field;
+
+public class InteractionView extends JPanel implements ComponentListener {
+
+	int tileWidth = 25; // number of columns to be on screen
+	int tileHeight = 13; // number of rows to be on screen
+
+	double overHeadOffsetX = 0;
+	double overHeadOffsetY = 0;
+
+	int halfTileWidth = tileWidth / 2;
+	int halfTileHeight = tileHeight / 2;
+	int windowHeight = getHeight(); // FIXME do only on resize
+	int windowWidth = getWidth(); // FIXME do only on resize
+	int centerX = windowWidth / 2;
+	int centerY = windowHeight / 2;
+	int hOffset = windowHeight * (tileWidth / 2);
+	int vOffset = 0;
+
+	int viewHeight;
+	int viewWidth;
+	int imgHeight;
+	int imgWidth;
+
+	boolean isIso;
+
+	GameView mainView;
+	Collection<Entity> healthEntities;
+
+	/**
+	 * Constructor for the InteractionView. Takes the view which it is a part of
+	 * as a parameter. Currently sets the background color to red. Sets Opacity
+	 * to true.
+	 */
+	public InteractionView(GameView mainView) {
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.BLACK);
+		this.mainView = mainView;
+		this.healthEntities = mainView.getCurrentGame().getState()
+				.getEntities();
+		isIso = true;
+		addComponentListener(this);
+	}
+
+	public void paint(Graphics g) {
+		super.paint(g); // print background and so forth
+
+		if (isIso) {
+			isoPaintField(g);
+			isoPaintPlants(g);
+			isoPaintEntities(g);
+			isoPaintPlayerCharacters(g);
+			isoPaintHealthbars(g);
+		} else {
+			paintField(g);
+			paintPlants(g);
+			paintEntities(g);
+			paintHealthbars(g);
+			paintPlayerCharacters(g);
+		}
+
+	}
+
+///////////////////////////Isometric View Painting////////////////////////////////////////
+	
+	
+	/**
+	 * Paints the field, pretty much only water and dirt.
+	 */
+	private void isoPaintField(Graphics g) {
+		Field world = mainView.getCurrentGame().getState().getGameField(); // for
+																			// consise
+																			// code.
+
+		for (int col = 0; col < world.getAreaBlocks().length; col++) { // print
+																		// out
+																		// field,
+																		// water
+																		// /
+																		// dirt
+			for (int row = 0; row < world.getAreaBlocks()[col].length; row++) {
+
+				if (world.getAreaBlocks()[col][row].isWater()) {
+					g.drawImage(
+							mainView.getImages().get("isoWater"), // image
+							(int) (twoDToIsoX(col, row) - overHeadOffsetX),
+							(int) (twoDToIsoY(col, row) - overHeadOffsetY), // location
+							tileWidth, tileHeight, // size
+							null); // no observer
+				} else {
+
+					g.drawImage(
+							mainView.getImages().get("isoSoil"), // image
+							(int) (twoDToIsoX(col, row) - overHeadOffsetX),
+							(int) (twoDToIsoY(col, row) - overHeadOffsetY), // location
+							tileWidth, tileHeight, // size
+							null); // no observer
+
+				}
+			}
+		}
+	}
+
+	/*
+	 * These two methods are what take the actual i and j position in our 2D
+	 * array of blocks and converts that two a visual, isometric, representation
+	 * in the view.
+	 */
+
+	private int twoDToIsoX(int x, int y) {
+		int isoX;
+		isoX = (int) ((x * tileWidth / 2) - (y * tileWidth / 2));
+		return isoX;
+	}
+
+	private int twoDToIsoY(int x, int y) {
+		int isoY;
+		isoY = (int) ((x * tileHeight / 2) + (y * tileHeight / 2));
+		return isoY;
+	}
+
+	/*
+	 * These two methods are going to be used to convert the isometric, visual,
+	 * coordinates to the coordinates within our actual field array. These would
+	 * be used with the calculation of bounds for what's to be printed on screen
+	 * but I haven't quite figured out their implementation yet.
+	 */
+
+	public double isoToI(double isoX, double isoY) {
+		double twoDX = ((isoY / ((getHeight() / tileHeight) / 2)) + (isoX / ((getWidth() / tileWidth) / 2)) / 2);
+		return twoDX;
+	}
+
+	public double isoToJ(double isoX, double isoY) {
+		double twoDY = ((isoY / ((getHeight() / tileHeight) / 2)) - (isoX / ((getWidth() / tileWidth) / 2)) / 2);
+		return twoDY;
+	}
+
+	/**
+	 * Paints the plants on the field. Everything.
+	 */
+	private void isoPaintPlants(Graphics g) { // TODO REALLY TEMPORARY
+
+		for (Settable cur : mainView.getCurrentGame().getState().getPlants()) {
+			g.drawImage(
+					mainView.getImages().get(cur.getName()), // image
+					(int) (twoDToIsoX((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) - overHeadOffsetX),
+					(int) (twoDToIsoY((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) - overHeadOffsetY), /*
+																				 * location
+																				 */
+					tileWidth, tileHeight*2, // size
+					null); // no observer
+		}
+
+	}
+
+	private void isoPaintEntities(Graphics g) {
+
+
+		for (Entity cur : mainView.getCurrentGame().getState().getEntities()) {
+			g.drawImage(
+					mainView.getImages().get(cur.getName()), // image
+					(int) (twoDToIsoX((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) - overHeadOffsetX),
+					(int) (twoDToIsoY((int) cur.getPosition().getX(),
+							(int) (cur.getPosition().getY())) - overHeadOffsetY), // location
+					tileWidth, tileHeight*2, // size
+					null); // no observer
+		}
+	}
+	
+	private void isoPaintPlayerCharacters(Graphics g) {
+
+		for (String curName : mainView.getCurrentGame().getState()
+				.getPlayerCharacters().keySet()) {
+			PlayerCharacter cur = mainView.getCurrentGame().getState()
+					.getPlayerCharacters().get(curName);
+			g.drawImage(
+					mainView.getImages().get(cur.getName()), // image
+					(int) (twoDToIsoX((int) (cur.getPosition().getX()-.5),
+							(int) (cur.getPosition().getY()-.5)) - overHeadOffsetX), // 0.5
+																							// for
+																							// centering
+							(int) (twoDToIsoY((int) (cur.getPosition().getX()-.5),
+									(int) (cur.getPosition().getY()-.5)) - overHeadOffsetY), // location
+					tileWidth, tileHeight*2, // size
+					null); // no observer
+		}
+	}
+	
+	private void isoPaintHealthbars(Graphics g) {
+
+		int hpHeight = 5; // height of HP bar
+		int hpWidth = imgWidth; // width of HP bar
+
+		for (Entity x : healthEntities) {
+			double curHealth = x.getHitPoints();
+			double maxHealth = x.getParameters().get("MaxHP");
+			int curX = (int) (twoDToIsoX((int) (x.getPosition().getX()),
+					(int) (x.getPosition().getY())) - overHeadOffsetX);
+			int curY= (int) (twoDToIsoY((int) (x.getPosition().getX()),
+					(int) (x.getPosition().getY())) - overHeadOffsetY);
+			double hpPercent = curHealth / maxHealth;
+			if (hpPercent < 0.99) {
+				g.setColor(Color.RED);
+				g.fillRect(curX, curY, hpWidth, hpHeight);
+				g.setColor(Color.GREEN);
+				g.fillRect(curX, curY, (int) (hpWidth * hpPercent), hpHeight);
+			}
+		}
+
+		for (Settable x : mainView.getCurrentGame().getState().getPlants()) {
+			double curHealth = x.getHitPoints();
+			double maxHealth = x.getParameters().get("MaxHP");
+			int curX = (int) (twoDToIsoX((int) (x.getPosition().getX()),
+					(int) (x.getPosition().getY())) - overHeadOffsetX);
+			int curY= (int) (twoDToIsoY((int) (x.getPosition().getX()),
+					(int) (x.getPosition().getY())) - overHeadOffsetY);						// for
+																						// scrolling
+			double hpPercent = curHealth / maxHealth;
+			if (hpPercent < 0.99) {
+				g.setColor(Color.RED);
+				g.fillRect(curX, curY, hpWidth, hpHeight);
+				g.setColor(Color.GREEN);
+				g.fillRect(curX, curY, (int) (hpWidth * hpPercent), hpHeight);
+			}
+
+		}
+	}
+
+	///////////////////////////OverHead View Painting////////////////////////////////////////
+	
+	
+	private void paintPlants(Graphics g) { 
+
+		for (Settable cur : mainView.getCurrentGame().getState().getPlants()) {
+			g.drawImage(mainView.getImages().get(cur.getName()), // image
+					
+					(int) ((cur.getPosition().getX()-0.5) * imgWidth - overHeadOffsetX), //location X
+					(int) ((cur.getPosition().getY()-0.5) * imgHeight - overHeadOffsetY), // location Y
+					imgWidth, imgHeight, // size
+					null); // no observer
+		}
+
+		/*
+		 * Field field = mainView.getCurrentGame().getState().getGameField();
+		 * //for consise code. // // for (int
+		 * col=0;col<field.getAreaBlocks().length;col++){ // for (int
+		 * row=0;row<field.getAreaBlocks()[col].length;row++){ // if
+		 * (field.getAreaBlocks()[col][row].getEntityOnTile()!=null){ //
+		 * System.out.print(row+" "+col); //
+		 * g.drawImage(mainView.getImages().get
+		 * (field.getAreaBlocks()[col][row].getEntityOnTile().getName()),
+		 * //image // row*imgWidth, col*imgHeight, //location // imgWidth,
+		 * imgHeight, //size // null); //no observer // } // } // }
+		 */
+	}
+
+	public void paintField(Graphics g) {
+		Field world = mainView.getCurrentGame().getState().getGameField();
+
+		for (int col = 0; col < world.getAreaBlocks().length; col++) { // print
+																		// background-dirt
+																		// and
+																		// water
+
+			for (int row = 0; row < world.getAreaBlocks()[col].length; row++) {
+				if (world.getAreaBlocks()[col][row].isWater()) {
+
+					g.drawImage(
+							mainView.getImages().get("water"), // image
+							(int) (col * imgWidth - overHeadOffsetX),
+							(int) (row * imgHeight - overHeadOffsetY), // location
+							imgWidth, imgHeight, // size
+							null); // no observer
+				} else {
+
+					g.drawImage(
+							mainView.getImages().get("dirt"), // image
+							(int) (col * imgWidth - overHeadOffsetX),
+							(int) (row * imgHeight - overHeadOffsetY), // location
+							imgWidth, imgHeight, // size
+							null); // no observer
+
+				}
+			}
+		}
+	}
+
+	private void paintEntities(Graphics g) {
+
+		int imgHeight = viewHeight / tileHeight;
+		int imgWidth = viewWidth / tileWidth;
+
+		for (Entity cur : mainView.getCurrentGame().getState().getEntities()) {
+			g.drawImage(
+					mainView.getImages().get(cur.getName()), // image
+					(int) ((cur.getPosition().getX() - 0.5) * imgWidth - overHeadOffsetX), // 0.5
+																							// for
+																							// centering
+					(int) ((cur.getPosition().getY() - 0.5) * imgHeight - overHeadOffsetY), // location
+					imgWidth, imgHeight, // size
+					null); // no observer
+		}
+	}
+
+	private void paintHealthbars(Graphics g) {
+
+		int hpHeight = 5; // height of HP bar
+		int hpWidth = imgWidth; // width of HP bar
+
+		for (Entity x : healthEntities) {
+			double curHealth = x.getHitPoints();
+			double maxHealth = x.getParameters().get("MaxHP");
+			int curX = (int) (x.getPosition().getX() * imgWidth // center of
+																// image
+					- imgWidth / 2 // push back to corner
+			- overHeadOffsetX); // offset for scrolling
+			int curY = (int) (x.getPosition().getY() * imgHeight - imgHeight
+					/ 2 // push back to corner
+			- overHeadOffsetY); // offset for scrolling
+			double hpPercent = curHealth / maxHealth;
+			if (hpPercent < 0.99) {
+				g.setColor(Color.RED);
+				g.fillRect(curX, curY, hpWidth, hpHeight);
+				g.setColor(Color.GREEN);
+				g.fillRect(curX, curY, (int) (hpWidth * hpPercent), hpHeight);
+			}
+		}
+
+		for (Settable x : mainView.getCurrentGame().getState().getPlants()) {
+			double curHealth = x.getHitPoints();
+			double maxHealth = x.getParameters().get("MaxHP");
+			int curX = (int) (x.getPosition().getX() * imgWidth // center of
+						-imgWidth/2 						// image
+			- overHeadOffsetX); // offset for scrolling
+			int curY = (int) (x.getPosition().getY() * imgHeight - imgHeight/2- overHeadOffsetY); // offset
+																						// for
+																						// scrolling
+			double hpPercent = curHealth / maxHealth;
+			if (hpPercent < 0.99) {
+				g.setColor(Color.RED);
+				g.fillRect(curX, curY, hpWidth, hpHeight);
+				g.setColor(Color.GREEN);
+				g.fillRect(curX, curY, (int) (hpWidth * hpPercent), hpHeight);
+			}
+
+		}
+	}
+
+	private void paintPlayerCharacters(Graphics g) {
+
+		for (String curName : mainView.getCurrentGame().getState()
+				.getPlayerCharacters().keySet()) {
+			PlayerCharacter cur = mainView.getCurrentGame().getState()
+					.getPlayerCharacters().get(curName);
+			g.drawImage(
+					mainView.getImages().get(cur.getName()), // image
+					(int) ((cur.getPosition().getX() - 0.5) * imgWidth - overHeadOffsetX), // 0.5
+																							// for
+																							// centering
+					(int) ((cur.getPosition().getY() - 0.5) * imgHeight - overHeadOffsetY), // location
+					imgWidth, imgHeight, // size
+					null); // no observer
+		}
+	}
+
+	public int getBlockHeight() {
+		return getHeight() / tileHeight;
+	}
+
+	public int getBlockWidth() {
+		return getWidth() / tileWidth;
+	}
+
+	public boolean isIso() {
+		return isIso;
+	}
+
+	public double getOverHeadOffsetX() {
+		return overHeadOffsetX;
+	}
+
+	public double getOverHeadOffsetY() {
+		return overHeadOffsetY;
+	}
+
+	public void setOverHeadOffsetX(double overHeadOffsetX) {
+		this.overHeadOffsetX = overHeadOffsetX;
+	}
+
+	public void setOverHeadOffsetY(double overHeadOffsetY) {
+		this.overHeadOffsetY = overHeadOffsetY;
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		viewHeight = getHeight();
+		viewWidth = getWidth();
+		imgHeight = viewHeight / tileHeight;
+		imgWidth = viewWidth / tileWidth;
+
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public int getTileWidth() {
+		return tileWidth;
+	}
+
+	public int getTileHeight() {
+		return tileHeight;
+	}
+
+	// public void addNotify(){
+	// super.addNotify();
+	// requestFocus();
+	// }
+
+}

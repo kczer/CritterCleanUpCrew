@@ -1,0 +1,63 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+public class TimeView extends JPanel {
+	GameView mainView; 
+	JLabel timeLabel = new JLabel(); 
+	Timer timer;
+        // to make sure it doesn't wait one second at the start  
+     	public TimeView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.ORANGE);
+		this.mainView = mainView;
+		TimeClass tc = new TimeClass(300);
+    	timer = new Timer(1000,tc);
+    	timer.start();
+		this.add(timeLabel);
+	}
+	 
+	
+	public void paint(Graphics g){
+		super.paint(g);
+		try{
+			BufferedImage b = ImageIO.read(new File("assets/dirt.png"));
+			//System.out.print(b);
+			//g.drawImage(b, 0, 0, Color.gray, this);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public class TimeClass implements ActionListener {  
+		int counter;
+		public TimeClass(int counter)
+		{
+			this.counter = counter;
+		}
+		public void actionPerformed(ActionEvent e){
+			counter--;
+			if(counter>=1){
+				timeLabel.setText("Time left: "+counter);
+			}
+			else{
+				timer.stop();
+				timeLabel.setText("Game Over");
+			}
+		}
+	}
+	      
+	
+
+}

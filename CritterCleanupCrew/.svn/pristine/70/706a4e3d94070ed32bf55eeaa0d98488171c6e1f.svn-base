@@ -1,0 +1,148 @@
+package views;
+
+import java.awt.Color;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+
+
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
+
+import buttons.*;
+
+public class ToolboxView extends JPanel {
+	
+	GameView mainView;
+	double bottomPartWeight = 0.15;
+	int buttonNumber=4;
+	int activeTab; //which button is pressed right now
+
+	public ToolboxView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.BLUE);
+		this.mainView = mainView;
+		setLayout(new GridBagLayout());
+		
+		initializeTopButtons();
+		initializeBottomButtons();
+	}
+	
+//	public void paint(Graphics g){
+//		super.paint(g);
+//		this.
+//	}
+	
+	private void initializeTopButtons(){
+		JButton l = new JButton();
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=1-bottomPartWeight;
+		add(l,c);
+		
+		JButton q = new PlantingButton(this, "settables.EnglishIvy");
+		c = new GridBagConstraints();
+		c.gridx=1;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(q,c);
+		
+		JButton w = new PlantingButton(this, "settables.WhiteOak");
+		c = new GridBagConstraints();
+		c.gridx=2;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(w,c);
+		
+		JButton p = new PlantingButton(this, "settables.TrashCan");
+		c = new GridBagConstraints();
+		c.gridx=3;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(p,c);
+		
+		JButton f = new ToolButton(this, "DigUp");
+		c = new GridBagConstraints();
+		c.gridx=4;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(f,c);
+		
+		for (int i=5;i<buttonNumber+1;i++){
+			JButton b = new JButton();
+			c = new GridBagConstraints();
+			c.gridx=i;
+			c.gridy=0;
+			c.fill=GridBagConstraints.BOTH;
+			c.weightx=1./buttonNumber;
+			c.weighty=1-bottomPartWeight;
+			add(b,c);
+		}
+		
+		JButton r = new JButton();
+		c = new GridBagConstraints();
+		c.gridx=buttonNumber+1;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=1-bottomPartWeight;
+		add(r,c);
+	}
+	
+	private void initializeBottomButtons(){
+		JButton l = new JButton();
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=1;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=bottomPartWeight;
+		add(l,c);
+		
+		
+		for (int i=1;i<buttonNumber+1;i++){
+			JButton b = new JButton();
+			c = new GridBagConstraints();
+			c.gridx=i;
+			c.gridy=1;
+			c.fill=GridBagConstraints.BOTH;
+			c.weightx=1./buttonNumber;
+			c.weighty=bottomPartWeight;
+			add(b,c);
+		}
+		
+		JButton r = new JButton();
+		c = new GridBagConstraints();
+		c.gridx=buttonNumber+1;
+		c.gridy=1;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=bottomPartWeight;
+		add(r,c);
+	}
+
+	public void setCurrentToolSet(int i) {
+		activeTab = i;//TODO
+		
+	}
+	
+	public GameView getMainView(){
+		return mainView;
+	}
+	
+}

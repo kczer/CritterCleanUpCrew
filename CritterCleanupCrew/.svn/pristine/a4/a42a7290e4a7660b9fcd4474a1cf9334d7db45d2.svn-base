@@ -1,0 +1,88 @@
+package players;
+
+import java.nio.channels.SeekableByteChannel;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import enitities.PlayerCharacter;
+import model.Game;
+import model.GameState;
+import model.Position;
+import moves.MotionMove;
+import moves.Move;
+
+public class HumanPlayer implements Player{
+	private ArrayList<Move> nextMoves; //what to get from
+	private Move targetMove; //main targeted move.
+	private PlayerCharacter underControl;
+	private Game game;
+	
+	public HumanPlayer(Game playedGame){ //should at least know the game it's playing
+		game = playedGame;
+	}
+	
+	public HumanPlayer(Game playedGame, PlayerCharacter controlled){ //should at least know the game it's playing, who it's controlling
+		game = playedGame;
+		underControl = controlled;
+		nextMoves = new ArrayList<Move>();
+	}
+
+	/**
+	 * Returns move by using inputs from the user.
+	 */
+	public Move getNextMove(GameState gameState) {
+		if (nextMoves.size()>0){
+			return nextMoves.remove(0); //remove first in queue;
+		}
+		return null; //nothing else
+	}
+
+	/**
+	 * Username.
+	 */
+	public String getID() {
+		return null;
+	}
+
+	@Override
+	public void setNextMove(Move nextMove) {
+		targetMove = nextMove; //set new target
+		nextMoves.clear(); //don't care where what we were doing before
+		if (targetMove instanceof MotionMove){
+			setUpMotionMoves();
+		}
+		
+	}
+
+	@Override
+	public String getPlayerCharacterControlled() {
+		return underControl.getName();
+	}
+
+	@Override
+	public boolean setPlayerCharacterToControl(String nameOfCharacter) {
+		underControl = game.getState().getPlayerCharacters().get(nameOfCharacter);
+		return true;
+	}
+	
+	/**
+	 * To be called to move to a certain location. Fills up the nextMoves
+	 * array with moves to move (yes, precisely).
+	 */
+	protected void setUpMotionMoves(){
+		double motionDistance = underControl.getParameters().get("Speed")*
+								game.tickSpeed()/1000; //how far can we move in a single turn
+		Position targetPos = ((MotionMove)targetMove).getPosition();
+		double unitX = underControl.getPosition().getUnitXComponent(targetPos); //unit vectors to there
+		double unitY = underControl.getPosition().getUnitYComponent(targetPos);
+		Position next = new Position(underControl.getPosition().getX()+unitX*motionDistance, //move up first increment
+									 underControl.getPosition().getY()+unitY*motionDistance);
+		while(next.distanceTo(targetPos)>2*motionDistance){ //while not close enough
+			MotionMove m = new MotionMove(next, underControl); //make a move to go there
+			nextMoves.add(m); //add the move
+			next = new Position(next.getX()+unitX*motionDistance, //increment closer
+								next.getY()+unitY*motionDistance);
+		}
+		
+	}
+}

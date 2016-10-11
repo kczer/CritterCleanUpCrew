@@ -1,0 +1,109 @@
+package listeners;
+
+import java.awt.event.MouseEvent;
+
+import javax.swing.event.MouseInputListener;
+
+import model.Field;
+import views.GameView;
+import views.InteractionView;
+import views.MinimapView;
+
+public class MinimapMouseListener implements MouseInputListener {
+
+	
+	private GameView gameView;
+	private InteractionView iView;
+	private MinimapView mmView;
+
+	public MinimapMouseListener(GameView gameView){
+		this.gameView = gameView;
+		this.iView = (InteractionView) gameView.getSubviews().get("Interaction");
+		this.mmView = (MinimapView) gameView.getSubviews().get("Minimap");
+	}
+	
+	
+	@Override
+	public void mouseDragged(MouseEvent event) {
+		recenterInteractionView(event);
+
+	}
+	
+	
+	@Override
+	public void mousePressed(MouseEvent event) {
+		recenterInteractionView(event);
+
+	}
+	
+	private void recenterInteractionView(MouseEvent event){
+		double xPart = 1.*event.getX()/mmView.getWidth(); //get coordinates relative to the map
+		double yPart = 1.*event.getY()/mmView.getHeight();
+		
+		double locationX = Field.fieldWidth*xPart; //the locations on the board
+		double locationY = Field.fieldHeight*yPart;
+		
+		double newXOffset; //allocatie offsets
+		double newYOffset;
+		
+		if (iView.isIso()){
+			newXOffset = iView.twoDToIsoX(locationX, locationY)- //get printing spot in iso
+					iView.getWidth()/2; //adjust to corner 
+			
+			newYOffset = iView.twoDToIsoY(locationX, locationY)- //get printing spot in iso
+					iView.getHeight()/2; //adjust to corner 
+
+		}
+		else{
+			newXOffset= locationX* //location
+					iView.getBlockWidth() -//now we have corner, adjust to center:
+					iView.getWidth()/2; //adjustment to corner
+			
+			newYOffset = locationY* //location
+					iView.getBlockHeight()-//now we have corner, adjust to center:
+					iView.getHeight()/2; //adjustment to corner
+			
+		}
+		
+		
+		iView.setOverHeadOffsetX(newXOffset);
+		iView.setOverHeadOffsetY(newYOffset);
+	}
+	
+	
+	
+	
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

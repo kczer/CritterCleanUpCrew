@@ -1,0 +1,60 @@
+package enitities;
+
+import java.util.Collection;
+
+import javax.sound.midi.ControllerEventListener;
+
+import players.Player;
+import weapons.Weapon;
+import model.Actionable;
+import model.GameState;
+import model.Position;
+import moves.Move;
+
+public class PlayerCharacter extends Entity{
+	
+	private Player currentController; //who is currently in control
+	private static Collection<Weapon> weapons; //the set of weapons
+	private Position position;
+	private String name;
+	
+	public PlayerCharacter(){
+		//for testing only
+	}
+	
+	public PlayerCharacter(String name, Player con){
+		this.name = name;
+		currentController = con;
+	}
+
+	/**
+	 * In-game character name. Choose wisely!
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @see Actionable#doAction(GameState)
+	 */
+	public boolean doAction(GameState g) {
+		return false;
+	}
+	
+	
+	/**
+	 * Switches to the weapon with number num.
+	 * Returns true if switch was successful, otherwise
+	 * false.
+	 */
+	public boolean switchWeapons(int num){
+		return false;
+	}
+
+	@Override
+	public boolean forceAction(GameState g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

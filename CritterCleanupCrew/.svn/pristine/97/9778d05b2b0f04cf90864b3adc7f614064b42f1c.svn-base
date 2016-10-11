@@ -1,0 +1,6 @@
+Range 3
+BaseDamage 0.1
+DamageSpread 0.01
+MaxHP 20
+Speed 0.05
+WaterModifier 0.2

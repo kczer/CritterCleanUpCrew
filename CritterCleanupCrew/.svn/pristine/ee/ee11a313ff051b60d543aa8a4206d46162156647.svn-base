@@ -1,0 +1,31 @@
+package players;
+
+import model.GameState;
+import moves.Move;
+
+public class AIPlayer implements Player{
+
+	/**
+	 * Returns calculated next move.
+	 */
+	public Move getNextMove(GameState gameState) {
+		return null;
+	}
+
+	/**
+	 * Returns generic AI identifier.
+	 */
+	public String getID() {
+		return null;
+	}
+	
+	/**
+	 * Calculates a move for the given GameState.
+	 * It uses heuristics and move skipping for smoother
+	 * transitions.
+	 */
+	private Move calculateMove(GameState gameState){
+		return null;
+	}
+
+}

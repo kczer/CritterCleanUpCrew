@@ -1,0 +1,23 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+
+
+
+
+public class SettableTests {
+	
+	@Test public void Settable_getName(){
+		//Nothing to test!
+		assertFalse(true); //just to fail.
+	}
+	
+	@Test public void Settable_getCycleTime(){
+		//Nothing to test!
+		assertFalse(true); //just to fail.
+	}
+
+}

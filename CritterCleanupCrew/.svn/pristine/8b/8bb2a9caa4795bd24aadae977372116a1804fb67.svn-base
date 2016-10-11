@@ -1,0 +1,79 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+
+
+
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+
+
+public class HappinessView extends JPanel {
+	GameView mainView;
+	double happiness = 0.5;
+	double healthBarX = 0;
+	double healthBarY = 0;
+	double healthWidth = 650;
+	double healthBarWidth = healthWidth * happiness; 
+	double healthBarHeight = 1000.00;
+	
+	/*
+	 * float barX = (entityX + entityWidth/2f) - barWidth/2f;
+	 * float barY = entityY - BAR_SPACING;
+	 * this is for putting health bars on mob , just a general idea
+	 * TODO: Place health bars over our entities and characters
+	 */
+	public HappinessView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.BLACK);
+		this.mainView = mainView;
+		this.happiness = mainView.getCurrentGame().getState().getHappiness();
+		JLabel happinessLabel = new JLabel("Happiness: " + (happiness*100)); 
+		this.add(happinessLabel);
+		
+		
+		
+	}
+	
+	public void paint(Graphics g) {
+		
+		happiness = mainView.getCurrentGame().getState().getHappiness();
+		healthBarWidth = getWidth() * happiness;
+		g.setColor(Color.RED); //sets color of rectangle to red, takes up the whole bar
+		g.fillRect((int)healthBarX, (int)healthBarY, (int)getWidth(), (int)healthBarHeight);
+		g.setColor(Color.GREEN); //sets color green
+		g.drawRect((int)healthBarX, (int)healthBarY, (int) healthBarWidth, (int)healthBarHeight); //draw the outline of a rectangle that is green
+		g.fillRect((int)healthBarX, (int)healthBarY, (int) healthBarWidth, (int)healthBarHeight); //however fill it with green in scale to happiness, see *HealthBarWidth.
+	}
+	/*public void paint(Graphics g){
+		super.paint(g);
+		
+		try{
+			BufferedImage b = ImageIO.read(new File("assets/.png"));
+			System.out.print(b);
+			g.fillRect((int)healthBarX, (int)healthBarY, (int)healthBarWidth, (int)healthBarHeight);
+			g.setColor(Color.pink);
+			g.drawImage(b, 0, 0, Color.gray, this);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static void MCompononent {
+		public void paint(Graphics g) {
+			
+			g.drawRect((int)healthBarX, (int)healthBarY, (int)healthWidth, (int)healthBarHeight);
+			g.setColor(Color.RED);
+			g.drawRect((int)healthBarX, (int)healthBarY, (int)healthBarWidth, (int)healthBarHeight);
+			g.setColor(Color.GREEN);
+		}
+	} 
+	*/
+}
+
+ 
+

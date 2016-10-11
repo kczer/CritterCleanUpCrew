@@ -1,0 +1,334 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Dimension;
+
+import java.awt.Font;
+import java.awt.Graphics;
+
+
+
+
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+
+
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.text.DecimalFormat;
+
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import javax.swing.SwingConstants;
+
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import settables.Settable;
+import model.Actionable;
+import moves.PlacingMove;
+
+public class InformationView extends JPanel implements ComponentListener{
+	GameView mainView;
+	Actionable shownActionable;
+	int viewHeight;
+	int viewWidth;
+	InformationPictureLabel picture;
+	JLabel[] texts;
+	JPanel textHolder;
+	double pictureRoom = 0.9; //what part should the pocture take up
+	int textFields = 6; //number of text fields
+	int resized; //to fix the resiing of the text fields
+	/**
+	 * Constructor for the InformationView.
+	 * Currently sets the background color to Green.
+	 * Sets Opacity to true.
+	 * Sets the gameview to which it is attached.
+	 */
+	public InformationView(GameView g){
+		super();
+		this.setOpaque(false);
+		this.setBackground(Color.YELLOW);
+		
+		mainView = g;
+		addComponentListener(this); //make itself listen to itself
+		
+		initializeParts(); //initialize everything
+	}
+	
+	/**
+	 * Initializes all the parts that the view can have: the picture,
+	 * text fields, others. Also places them into the layout and maybe
+	 * gives some default values
+	 */
+	private void initializeParts() {
+		setLayout(new GridBagLayout()); //set up a grid bag layout
+		GridBagConstraints c = new GridBagConstraints(); //make a variable here, one for all
+		
+		picture = new InformationPictureLabel(); //make the picture part
+		c.gridx=0; //very top
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH; //expand
+		c.weightx=1; //full width
+		c.weighty=pictureRoom; //give most of the room
+		c.gridwidth=2; //all the room
+		add(picture,c); //put the picture into the layout
+		
+		
+		GridLayout f = new GridLayout(3,2,0,0);
+		c = new GridBagConstraints();
+		textHolder = new JPanel();
+		textHolder.setLayout(f);
+		c.gridx=0; //very top
+		c.gridy=1;
+		c.fill=GridBagConstraints.HORIZONTAL; //expand
+		c.anchor=GridBagConstraints.SOUTH;
+		c.weightx=1; //full width
+		c.weighty=1-pictureRoom; //give most of the room
+		c.gridwidth=2; //all the room
+		add(textHolder,c); //put the picture into the layout
+		texts =  new JLabel[textFields]; //make the textfield array
+		for (int i =0;i<textFields;i++){
+			texts[i] = new JLabel(); //make the textfield
+			textHolder.add(texts[i]);//,c); //put the picture into the layout
+			texts[i].setText(i+"");
+			texts[i].setFont(new Font("Times New Roman", 0, 10));
+			texts[i].setBackground(new Color(51, 204, 51));
+			texts[i].setHorizontalAlignment(SwingConstants.CENTER);
+//			texts[i].setBackground(Color.BLACK);
+			texts[i].setOpaque(true);
+		}
+		System.out.println(texts[0].getHeight());
+		resized=1;
+		
+	}
+
+	/**The picture is general for all actionables,
+	 * specific information is dependent on the type of the 
+	 * Actionable. Plants could have cash data, while entities
+	 * could have damage data and so forth.
+	 */ 
+	public void paint(Graphics g){
+//		super.paint(g);
+		
+		if (!isShownActionableAlive()){  //if the actionable is (no longer) alive
+			setShownActionable(null); //nothing to show
+		}
+		paintBlankScreen(g);
+		if (shownActionable!=null){
+		//do some tests and real painting
+			setShownActionable(shownActionable); //update the text fields
+		}
+		super.paint(g); //draw the background and whatnot, as well as the picture
+	}
+	
+	/**
+	 * Tells whether the currently shown actionable is still alive and should be shown in the game.
+	 * @return
+	 */
+	private boolean isShownActionableAlive(){
+		if (shownActionable instanceof PlayerCharacter){ //if it's player character
+			return true; //it's always alive
+		}
+		if (shownActionable instanceof Entity){ //if it's an entity
+			return mainView.getCurrentGame().getState().getEntities().contains(shownActionable); //return whether it's in the state collection of entities
+		}
+		if (shownActionable instanceof Settable){ //if it's a settable 
+			if (mainView.getButtonMove() instanceof PlacingMove){ //if we have a placing move
+				if (((PlacingMove)mainView.getButtonMove()).getPlant()==shownActionable){ //if we're placing attempting to place it, it's "alive"
+					return true;
+				}
+			}
+			return mainView.getCurrentGame().getState().getPlants().contains(shownActionable); //return whether it's in the state collection of settables
+		}
+		return false; //guess it's not alive if it doesn't exist
+	}
+
+	/**
+	 * Paints the blank background for the information view. 
+	 * Is probably a bit more exciting than one color.
+	 */
+	private void paintBlankScreen(Graphics g) {
+		g.drawImage(mainView.getImages().get("informationBackground"), //image
+				0,0, //position
+				viewWidth, viewHeight, //size
+				null); //observer
+		
+	}
+
+	/**
+	 * Specifies the information about which actionable should be
+	 * shown on this view. Will print out that information on the 
+	 * next tick.
+	 */
+	public void setShownActionable(Actionable clicked) {
+		shownActionable = clicked; //this is the actionable that we now show
+		if (clicked!=null){ //if not null
+			picture.toDraw = mainView.getImages().get(clicked.getName()); //Tell the picture to draw it
+		}
+		else{
+			picture.toDraw = null; //draw nothing
+		}
+		setTextInformation(clicked); //set the text information for this new clicked thing, even if it's nothing
+	}
+
+	private void setTextInformation(Actionable clicked) {
+		if (clicked==null){ //if we just lost our actionable
+			for (JLabel i : texts) { //for every JLabel
+				i.setText("---"); //let some null text
+			}
+		}
+		else if (clicked instanceof Settable){ //if it's a settable
+			setSettableTextInfo((Settable)clicked); //let the settables figure it out
+		}
+		else if (clicked instanceof PlayerCharacter){ //if it's a player character
+			setPlayerCharacterTextInfo((PlayerCharacter)clicked); //let the the player characters figure it out
+		}
+		else if (clicked instanceof Entity){ //if it's an entity
+			setEntityTextInfo((Entity)clicked); //you guessed it, less the entities write it
+		}
+		
+	}
+
+	/**
+	 * Writes the information to the texts fields specifically for
+	 * Entites (not PlayerCharacters).
+	 */
+	private void setEntityTextInfo(Entity clicked) {
+		texts[0].setText(clicked.getName()); //put the name in the first
+        
+        String partTwo="";
+        if (clicked.getParameters().get("Friendly")==1){ //if is friendly
+        	partTwo = "Friend"; //set friend
+        }
+        else{
+        	partTwo = "Enemy"; //else it's an enemy
+        }
+        texts[1].setText(partTwo); //set the nativeness
+        
+        texts[2].setText("HP: "+getHPString(clicked)); //set the HP
+        
+        texts[3].setText("Damage: "+clicked.getParameters().get("BaseDamage")); //set the damage
+        
+        texts[4].setText("Speed: "+clicked.getParameters().get("Speed")); //set the speed
+		
+        texts[5].setText("Range: "+clicked.getParameters().get("Range")); //set the range
+	}
+	
+	/**
+	 * Writes the information to the texts fields specifically for
+	 * PlayerCharacters.
+	 */
+	private void setPlayerCharacterTextInfo(PlayerCharacter clicked) {
+		texts[0].setText(clicked.getName()); //put the name in the first
+        
+        texts[1].setText(clicked.getPosition().toString()); //set the position
+        
+        texts[2].setText("Range: "+clicked.getCurrentWeapon().getParameters().get("Range")); //set the range on the weapon
+        
+        texts[3].setText("Damage: "+clicked.getCurrentWeapon().getParameters().get("BaseDamage")); //set the damage
+        
+        texts[4].setText("Speed: "+clicked.getParameters().get("Speed")); //set the speed
+		
+        texts[5].setText("Range: "+clicked.getCurrentWeapon().getParameters().get("Range")); //set the range
+	}
+	
+	/**
+	 * Writes the information to the texts fields specifically for
+	 * Settables.
+	 */
+	private void setSettableTextInfo(Settable clicked) {
+        texts[0].setText(clicked.getName()); //put the name in the first
+        
+        Integer count = mainView.getCurrentGame().getState().getPlacedPlantCount().get(clicked.getName()); //get placing count of this plant
+        String partTwo="";
+        String happinessPart=""; //for happiness printing
+        if (count==null){ //if never placed
+        	partTwo = "???"; //no idea yet
+        	happinessPart="???";
+        }
+        else{
+        	switch(clicked.getNativeness()){ //check antiveness
+        	case -1:{ //invasive
+        		partTwo = "Invasive";
+        		break;
+        	}
+        	case 0:{ //non-native
+        		partTwo = "Non-native";
+        		break;
+        	}
+        	case 1:{ //native
+        		partTwo = "Native";
+        		break;
+        	}
+        	case -2:{ //maybe possible, enemy
+        		partTwo = "Enemy";
+        		break;
+        	}
+        	}	 
+        	happinessPart=clicked.getParameters().get("Happiness")+""; //tell the happiness
+        }
+        texts[1].setText(partTwo); //set the nativeness
+        
+        texts[2].setText("HP: "+getHPString(clicked)); //set the HP
+        
+        texts[3].setText("Cost: "+clicked.getCost()); //set the cost, really
+        
+        texts[4].setText("Spawn Time: "+clicked.getParameters().get("SpawnTime")); //set the spawn rate
+        
+        texts[5].setText("Hapiness: "+happinessPart); //tell how much happiness it gives
+	}
+	
+	/**
+	 * 
+	 * Returns the hp string for the given actionable in the format
+	 * currentHP/maxHP
+	 * 
+	 */
+	private String getHPString(Actionable clicked){
+		double currentHP =  clicked.getHitPoints();
+		double maxHP = clicked.getParameters().get("MaxHP");
+		return  (new DecimalFormat("#.##").format(currentHP)) //format current HP
+				+'/'+ //put the slash
+				(int)maxHP; //format maxHP;
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		viewHeight = getHeight();
+		viewWidth = getWidth();
+		System.out.println("REsizing "+viewWidth);
+		if (resized>0){
+			for (JLabel i:texts){
+				i.setPreferredSize(new Dimension((int)(viewWidth/2.5), i.getHeight()));
+				
+			}
+			resized--;
+			
+		}
+		
+	}
+
+	
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

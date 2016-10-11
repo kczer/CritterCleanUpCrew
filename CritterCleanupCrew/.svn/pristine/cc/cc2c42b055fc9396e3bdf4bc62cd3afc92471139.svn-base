@@ -1,0 +1,26 @@
+package moves;
+
+import weapons.Weapon;
+import enitities.Entity;
+import model.GameState;
+
+public class AttackMove implements Move {
+	Entity target;
+	Weapon attackingWeapon;
+
+	/**
+	 * Can this weapon attack the selected entity (in range,
+	 * of correct type).
+	 */
+	public boolean isValid(GameState gameState) {
+		return false;
+	}
+
+	/**
+	 * Attack the selected entity, do some damage.
+	 */
+	public boolean makeMove(GameState gameState) {
+		return false;
+	}
+
+}

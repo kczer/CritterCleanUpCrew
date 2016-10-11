@@ -1,0 +1,10 @@
+Range 0.1
+BaseDamage 10
+DamageSpread 0.5
+MaxHP 50
+Speed 2
+WaterModifier 0.2
+MoneyOnDeath 50
+Friendly 0
+RangeToLook 5
+ColonizingTime 5

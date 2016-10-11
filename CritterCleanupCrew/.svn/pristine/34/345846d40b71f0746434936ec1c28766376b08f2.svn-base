@@ -1,0 +1,27 @@
+package moves;
+
+import enitities.Entity;
+import model.GameState;
+import model.Position;
+
+public class EntityMotionMove implements Move {
+	
+	private Entity moving;
+	private Position newPosition;
+
+	/**
+	 * Can the entity specified move to the location
+	 * that is specified in the Move?
+	 */
+	public boolean isValid(GameState gameState) {
+		return false;
+	}
+
+	/**
+	 * Move the entity to the specified location.
+	 */
+	public boolean makeMove(GameState gameState) {
+		return false;
+	}
+
+}

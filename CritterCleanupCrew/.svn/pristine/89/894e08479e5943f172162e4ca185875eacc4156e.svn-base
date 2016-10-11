@@ -1,0 +1,43 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+
+
+
+
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+
+
+
+public class MoneyView extends JPanel {
+	GameView mainView;
+	JLabel moneyLabel;
+	
+	public MoneyView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.MAGENTA);
+		this.mainView = mainView;
+		moneyLabel = new JLabel("Money: " + mainView.getCurrentGame().getState().getMoney()); 
+		this.add(moneyLabel);
+		}
+		 
+	
+	public void paint(Graphics g){
+		super.paint(g);
+		moneyLabel.setText("Money: " + mainView.getCurrentGame().getState().getMoney());
+	}
+	
+	public void paintComponent(Graphics g) { //put the money icon in the backgroud
+		Image bg = new ImageIcon("assets/coin.png").getImage();
+		super.paintComponent(g);
+		g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+	}
+
+}

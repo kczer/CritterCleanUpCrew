@@ -1,0 +1,51 @@
+package model;
+
+public class Field implements java.io.Serializable{
+	Block[][] areaBlocks;
+	private static double waterThreshold=0.4; //below what noise level do we get water.
+	private static int octaves=3; //octaves for noise generation
+	public static int fieldWidth =30;
+	public static int fieldHeight=30;
+	
+	/**
+	 * No arg constructor for a field.
+	 * Creates a 50x50 2d array.
+	 * Uses generateField(rand()) to fill it up with Blocks.
+	 */
+	public Field(){
+		areaBlocks = new Block[fieldWidth][fieldHeight];
+		generateField(41);
+	}
+	
+	/**
+	 * Generates a terrain based on the seed given. The terrain
+	 * has smoothly varying heights and water sources.
+	 * Call only after areaBlocks has been instantiated.
+	 * 
+	 */
+	private void generateField(int seed){
+		double[][] noiseField = NoiseGenerator.mapNoise( //map the noise
+				NoiseGenerator.GenerateSmoothNoise( //using smooth noise
+				NoiseGenerator.GenerateWhiteNoise(150, 150), //from white noise
+				octaves), //use 3 octaves
+				octaves);  //and scale of 3
+		
+		for (int col=0;col<fieldWidth;col++){
+			for (int row=0;row<fieldHeight;row++){
+				
+				areaBlocks[col][row] = new Block(); //actually make a block
+				
+				if (noiseField[col][row]<waterThreshold){ //if at water threshold
+					areaBlocks[col][row].setWater(true); //make water
+				}
+				areaBlocks[col][row].setElavation(noiseField[col][row]); //give the elevation no matter what
+			}
+		}
+		
+	}
+
+	public Block[][] getAreaBlocks() {
+		return areaBlocks;
+	}
+
+}

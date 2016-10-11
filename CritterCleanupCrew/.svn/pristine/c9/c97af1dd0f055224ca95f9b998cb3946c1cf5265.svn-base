@@ -1,0 +1,33 @@
+package players;
+
+import java.util.Collection;
+
+import model.GameState;
+import moves.Move;
+
+public class HumanPlayer implements Player{
+	private Collection<Move> nextMoves;
+
+	/**
+	 * Returns move by using inputs from the user.
+	 */
+	public Move getNextMove(GameState gameState) {
+		return null;
+	}
+
+	/**
+	 * Username.
+	 */
+	public String getID() {
+		return null;
+	}
+
+	/**
+	 * Used by the controller and view to "put"
+	 * a move done by the player into the object, to
+	 * later pass to the model for actions.
+	 */
+	public void setNextMove(Move nextMove){
+		
+	}
+}

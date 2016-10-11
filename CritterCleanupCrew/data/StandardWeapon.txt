@@ -1,0 +1,6 @@
+Range 5
+BaseDamage 5
+DamageSpread 1
+BlastRadius 0.01 //Standard weapon is literally a sniper rifle
+ReloadTime 100 //time time to reload, click away
+HitFriendly 0 //nope

@@ -1,0 +1,85 @@
+package settables;
+
+import java.util.Map;
+
+import enitities.Catterpillar;
+import enitities.Entity;
+import model.Block;
+import model.GameState;
+import model.Position;
+
+public class WhiteOak extends Settable {
+	
+	protected static Map<String, Double> parameters; //where parameters are kept.
+	private boolean changedHappiness; //if it has done its happiness impact yet.
+	private int totalTicks;
+	
+	public WhiteOak(){
+		if (parameters==null){ //if parameters have not been loaded
+			parameters = Settable.loadParameters("data/White Oak.txt"); //load them.
+		}
+		cost = parameters.get("Cost").intValue();
+		changedHappiness = false;
+		hitPoints = parameters.get("MaxHP");
+		totalTicks=0;
+	}
+
+	@Override
+	public boolean doAction(GameState g) {
+		//System.out.println(ticksSinceAction+" "+ticksToNextAction);
+		if (!changedHappiness){
+			g.setHappiness(g.getHappiness()+parameters.get("Happiness"));
+			changedHappiness=true;
+		}
+		ticksSinceAction++;
+		totalTicks++;
+		
+		if (ticksSinceAction>ticksToNextAction){
+			//figure out where to spawn
+			double xToSpawn, yToSpawn; 
+			//get raw spawn
+			xToSpawn = position.getX()+g.getGenerator().nextGaussian()*parameters.get("SpawnLocSpread");
+			yToSpawn = position.getY()+g.getGenerator().nextGaussian()*parameters.get("SpawnLocSpread");
+			//fix the spot to be in-game
+			xToSpawn = Math.abs(xToSpawn); //for below zero
+			yToSpawn = Math.abs(yToSpawn); //for below zero
+			if (xToSpawn>g.getGameField().getAreaBlocks()[0].length){ //for over
+				xToSpawn = g.getGameField().getAreaBlocks()[0].length*2-xToSpawn;
+			}
+			if (yToSpawn>g.getGameField().getAreaBlocks().length){ //for over
+				yToSpawn = g.getGameField().getAreaBlocks()[0].length*2-yToSpawn;
+			}
+			
+			//make position
+			Position posToSpawn = new Position(xToSpawn, yToSpawn);
+			//spawn
+			Entity ent = new Catterpillar(posToSpawn); //FIXME, spawn randomer?
+			
+			//stick in game
+			g.getEntities().add(ent);
+			
+			ticksSinceAction=0;
+			ticksToNextAction = (int) ((g.getGenerator().nextGaussian())*parameters.get("SpawnTimeSpread")+
+					parameters.get("SpawnTime")); 
+		}
+			
+			
+		return true;
+	}
+
+	@Override
+	public String getName() {
+		return "White Oak";
+	}
+
+	@Override
+	public int getCycleTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	public double getHappiness(){
+		return parameters.get("Happiness");
+	}
+
+}

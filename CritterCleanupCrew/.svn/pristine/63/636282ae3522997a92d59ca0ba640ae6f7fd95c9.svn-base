@@ -1,0 +1,33 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+
+public class CounterView extends JPanel {
+	GameView mainView;
+	
+	public CounterView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.BLACK);
+		this.mainView = mainView;
+	}
+	
+	public void paint(Graphics g){
+		super.paint(g);
+		try{
+			BufferedImage b = ImageIO.read(new File("assets/dirt.png"));
+			//System.out.print(b);
+			//g.drawImage(b, 0, 0, Color.gray, this);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+
+}

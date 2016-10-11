@@ -1,0 +1,68 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+
+
+
+
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+
+
+
+
+public class MoneyView extends JPanel {
+	GameView mainView;
+	JLabel moneyLabel;
+	
+	public MoneyView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.mainView = mainView;
+		moneyLabel = new JLabel(""); 
+		this.add(moneyLabel);
+		}
+		 
+	
+	public void paint(Graphics g){
+		super.paint(g);
+		moneyLabel.setText("Money: " + mainView.getCurrentGame().getState().getMoney());
+	}
+	
+	public void paintComponent(Graphics g) { //put the money icon in the backgroud
+		Image bg = new ImageIcon("assets/coin.png").getImage();
+		Image noMoneyImg = new ImageIcon("assets/no.png").getImage();
+		Color bgColor = UIManager.getColor ( "Panel.background" );
+		super.paintComponent(g);
+		if(this.mainView.getCurrentGame().getState().getMoney()>=2000)
+		{
+			this.setBackground(bgColor);
+		g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+	}
+		if(this.mainView.getCurrentGame().getState().getMoney()>=1000 && this.mainView.getCurrentGame().getState().getMoney()<2000 )
+		{
+			this.setBackground(bgColor);
+			g.drawImage(bg, 22, 10, (getWidth()/3)*2, (getHeight()/3)*2, this);
+		}
+		if(this.mainView.getCurrentGame().getState().getMoney()>=250 && this.mainView.getCurrentGame().getState().getMoney()<1000)
+		{
+			this.setBackground(bgColor);
+			g.drawImage(bg, 40, 20, (getWidth()/3), (getHeight()/3), this);
+			if(this.mainView.getCurrentGame().getState().getMoney()>=250 && this.mainView.getCurrentGame().getState().getMoney() < 500)
+			{
+				this.setBackground(Color.YELLOW);
+			}
+		}
+		if(this.mainView.getCurrentGame().getState().getMoney()<250 && this.mainView.getCurrentGame().getState().getMoney()>=0)
+		{
+			g.drawImage(noMoneyImg, 0, 0, getWidth(), getHeight(), this);
+		}
+			
+
+}
+}

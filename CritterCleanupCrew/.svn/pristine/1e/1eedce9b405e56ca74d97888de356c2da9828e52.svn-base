@@ -1,0 +1,89 @@
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Collection;
+
+
+
+import enitities.Entity;
+import enitities.Gnome;
+import settables.TrashCan;
+import views.*;
+import model.*;
+import moves.PlacingMove;
+
+public class MainController implements java.io.Serializable { //Hang
+	/*
+	 * Currently only for testing purposes. Hold the main method,
+	 * creates the main view, the game, gives them to each other 
+	 * and runs them.
+	 */
+	
+	public static void main(String[] args) throws IOException{ //Hang IO
+		GameView mainView = new GameView();
+//		Game game = new Game();
+//		mainView.setCurrentGame(game);
+//		mainView.repaint();
+//		PlacingMove m = new PlacingMove(new EnglishIvy(), new Position(2,2));
+////		m.makeMove(mainView.getCurrentGame().getState());
+//		mainView.repaint();
+//		mainView.repaint();
+//		mainView.repaint();
+		Collection<Entity> c = mainView.getCurrentGame().getState().getEntities();
+		c.add(new Gnome(new Position(10, 10)));
+		c.add(new Gnome(new Position(10, 5)));
+		c.add(new Gnome(new Position(7, 6)));
+		PlacingMove m = new PlacingMove(new TrashCan(), new Position(6,6));
+		m.makeMove(mainView.getCurrentGame().getState());
+		
+		long time, nextTick;
+		
+		while (!mainView.getCurrentGame().getState().isEnd()){
+			//System.out.println(mainView.getCurrentGame().getState().getEntities());
+			mainView.getCurrentGame().tick();
+			mainView.repaint();
+			
+//			try{
+//				Thread.sleep(mainView.getCurrentGame().tickSpeed());
+//			}
+//			catch(InterruptedException e){
+//				e.printStackTrace();
+//			}
+			
+			time = System.currentTimeMillis();
+			nextTick = time+=mainView.getCurrentGame().tickSpeed();
+			while (System.currentTimeMillis()<nextTick){} //wait
+		}
+		
+		//GameState gs = new GameState(); //Hang 5/4
+		
+		long currentTime = System.currentTimeMillis() + 1;
+
+		if (currentTime > System.currentTimeMillis()){
+			FileOutputStream fos = new FileOutputStream("tempdata.txt");
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(mainView.getCurrentGame().getState());
+			oos.close();
+		}
+
+		
+//		SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                GameView ex = new GameView();
+//                ex.setVisible(true);
+//                PlacingMove m = new PlacingMove(new EnglishIvy(), new Position(2,3));
+//        		m.makeMove(ex.getCurrentGame().getState());
+//        		System.out.println("RUN CALLED");
+//            }
+//        });
+//		try{
+//		SwingUtilities.invokeLater(new TestRunner());
+//		}catch(Exception e){}
+		
+		
+	}
+
+}

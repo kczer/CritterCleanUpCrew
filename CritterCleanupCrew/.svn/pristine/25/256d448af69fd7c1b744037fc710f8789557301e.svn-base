@@ -1,0 +1,8 @@
+Range 5
+BaseDamage 2
+DamageSpread 0.5
+MaxHP 3
+Speed 4
+WaterModifier 0.8
+MoneyOnDeath 0
+Friendly 1

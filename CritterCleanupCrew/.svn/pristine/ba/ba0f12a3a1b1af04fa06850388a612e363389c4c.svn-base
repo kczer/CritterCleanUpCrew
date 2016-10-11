@@ -1,0 +1,144 @@
+package players;
+
+import java.util.ArrayList;
+
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import model.Actionable;
+import model.Game;
+import model.GameState;
+import model.Position;
+import moves.AttackMove;
+import moves.MotionMove;
+import moves.Move;
+
+public class AIPlayer implements Player{
+	private PlayerCharacter underControl;
+	private Game game;
+	private String name;
+	
+/*	
+	private ArrayList<Move> nextMoves;
+	private Move targetMove;
+	Actionable target;
+	boolean friendly;
+	Position position;*/
+	
+	public AIPlayer(Game playedGame, String name){
+		game= playedGame;
+		this.name = name;
+	}
+	
+	public AIPlayer(Game playedGame, String name, PlayerCharacter controlled){
+		game= playedGame;
+		this.name = name;
+		underControl = controlled;
+	}
+
+
+	/**
+	 * Returns calculated next move.
+	 */
+	public Move getNextMove(GameState gameState) {
+/*		
+		if (targetMove instanceof AttackMove){ 
+			return attackingMove((AttackMove)targetMove, gameState);
+		}
+		else if (targetMove instanceof MotionMove){ 
+			Position targetPos = ((MotionMove) targetMove).getPosition();
+			if (targetPos.distanceTo(underControl.getPosition())>0.05){ 
+				return getMotionMove(targetPos, gameState); 
+			}else{
+				targetMove = null; 
+				return null;
+			}
+		}*/
+		return null; 
+	}
+
+	/**
+	 * Returns generic AI identifier.
+	 */
+	public String getID() {
+		return name;
+	}
+	
+	/**
+	 * Calculates a move for the given GameState.
+	 * It uses heuristics and move skipping for smoother
+	 * transitions.
+	 */
+	private Move calculateMove(GameState gameState){
+		return null;
+	}
+
+	@Override
+	public void setNextMove(Move nextMove) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getPlayerCharacterControlled() {
+		return underControl.getName();
+	}
+
+	@Override
+	public boolean setPlayerCharacterToControl(String nameOfCharacter) {
+		underControl = game.getState().getPlayerCharacters().get(nameOfCharacter);
+		return true;
+	}
+
+/*	protected MotionMove getMotionMove(Position targetPos, GameState g){
+		int x=underControl.getPosition().getIntX();
+		int y=underControl.getPosition().getIntY();
+		double motionDistance = underControl.getParameters().get("Speed")*
+				game.tickSpeed()/1000* //how far can we move in a single turn
+				(g.getGameField().getAreaBlocks()[x][y].isWater()? 
+					underControl.getParameters().get("WaterModifier"):1); 
+		
+		double unitX = underControl.getPosition().getUnitXComponent(targetPos); 
+		double unitY = underControl.getPosition().getUnitYComponent(targetPos);
+		Position next = new Position(underControl.getPosition().getX()+unitX*motionDistance, 
+									 underControl.getPosition().getY()+unitY*motionDistance);
+		return new MotionMove(next, underControl); //make a move to go there
+		
+	}
+	
+
+	protected Move attackingMove(AttackMove tmove, GameState g) {
+		double range = tmove.getAttackingWeapon().getParameters().get("Range");
+		Position target = tmove.getTarget().getPosition();
+		if (underControl.getPosition().distanceTo(target)<range){ 
+			targetMove = null; 
+			damageTarget(g);
+			return tmove; 
+		}
+		else{ //if out of range
+			return getMotionMove(target, g);
+		}
+	}
+	
+	protected void damageTarget(GameState g){
+		double damage = 10; //base
+						g.perTickMultiplier(); // TickSpeed;
+		target.setHitPoints(target.getHitPoints()-damage);
+	}
+	
+	protected Entity findEntityTarget(GameState g, boolean friendly){
+		double distance=Double.MAX_VALUE; //closest yet
+		Entity target=null;
+		for (Entity cur: g.getEntities()){ //searches over entities
+			if (cur!=underControl){ //if this isn't itself
+				double d = position.distanceTo(cur.getPosition());
+				if (d<distance&&(!cur.isFriendly()^friendly)){
+					distance=d;
+					target= cur;
+				}
+			}
+		}
+		return target;
+	}
+	*/
+	
+}

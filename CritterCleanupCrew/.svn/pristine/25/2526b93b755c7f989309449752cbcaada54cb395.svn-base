@@ -1,0 +1,40 @@
+package settables;
+
+import java.util.Map;
+
+import model.GameState;
+import enitities.Catterpillar;
+import enitities.Entity;
+
+public class Arborvitae extends Settable {
+	private static Map<String, Double> parameters;
+	@Override
+	public void loadParameters() {
+		parameters = Settable.loadParameters("data/Arborvitae.txt");
+	}
+
+	@Override
+	public String getName() {
+		return "Arborvitae";
+	}
+
+	@Override
+	public int getCycleTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Map<String, Double> getParameters() {
+		if (parameters==null){ //if parameters haven't been loaded
+			loadParameters(); //load them
+		}
+		return parameters; //return them
+	}
+
+	@Override
+	protected Entity chooseSpawnEntity(GameState g) {
+		return new Catterpillar(null);
+	}
+
+}

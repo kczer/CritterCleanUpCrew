@@ -1,0 +1,63 @@
+package buttons;
+
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+
+import moves.PlacingMove;
+import views.ToolboxView;
+import settables.*;
+
+public class PlantingButton extends GameButton{
+	String className;
+	String labelName;
+
+	public PlantingButton(ToolboxView tView, String className){
+		super(tView);
+		this.className = className;
+		setUpButton(); //set the label
+		addActionListener(this); //make it listen to itself
+	}
+	
+	public void actionPerformed(ActionEvent event) {
+		super.actionPerformed(event);
+
+		try {
+			Class toPlace = Class.forName(className); //obtain class of plant
+			Settable plant = (Settable) toPlace.newInstance(); //make a plant
+			
+			PlacingMove pm = new PlacingMove(plant, null); //make a move, no position
+			toolboxView.getMainView().setButtonMove(pm); //give it the move
+
+		} catch (ClassNotFoundException e) {
+			
+			System.out.println(className); //not found? Rrally?
+			e.printStackTrace();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		//change cursor
+		Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(toolboxView.getMainView().getImages().get(labelName), //get image from plant name
+				new Point(0,0), "img"); //make it a cursor
+		toolboxView.getMainView().setCursor(c); //give the main view a good cursor
+	}
+
+	
+	/**
+	 * Sets uo the button (pictures, labels) by using the class name given and
+	 * other data.
+	 */
+	protected void setUpButton(){
+		try { //get the good name
+			labelName = ((Settable)(Class.forName(className).newInstance())).getName();
+		} catch (InstantiationException | IllegalAccessException
+				| ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		setText(labelName); //put it in
+	}
+}

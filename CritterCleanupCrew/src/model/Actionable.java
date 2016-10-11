@@ -1,0 +1,77 @@
+package model;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import players.Player;
+import moves.Move;
+
+public interface Actionable extends Serializable{ //extends Player{ POSSIBLE TODO Decided to trash the idea!
+
+	/**
+	 * Does its specified action on the game state.
+	 * Returns true if actually did something,
+	 * false if nothing was done/failed.
+	 * Pretty much does the move found in
+	 * 
+	 */
+	public boolean doAction(GameState g);
+	
+	
+	/**
+	 * Loads the parameters needed for running its
+	 * methods from the designated filename.
+	 
+	public boolean loadParameters(String filename);
+	*/
+	
+	/**
+	 * Returns the next move that should be done on the game
+	 * state, equivalent to what it'll do in 
+	 * @see Actionable#doAction(GameState)
+	 
+	public Move nextMove(GameState g);
+	*/
+	
+	/**
+	 * Gets the current position of this Actionable.
+	 */
+	public Position getPosition();
+	
+	/**
+	 * How many hitpoints does it have left
+	 */
+	public double getHitPoints();
+	
+	/**
+	 * Used for changing hitpoint number (healing and damage).
+	 * Defence and so forth don't act, really.
+	 */
+	public void setHitPoints(double number);
+	
+	/**
+	 * Forces the Actionable to do an action, not thinking
+	 * about tick counts and the likes.
+	 */
+	public boolean forceAction(GameState g);
+	
+	/**
+	 * Gets the parameter map for the object. Can be object,
+	 * can be class specific. All actions can be done differently,
+	 * so that's why we have a map.
+	 */
+	public Map<String, Double> getParameters();
+	
+	/**
+	 * Returns the name of the class/object. Obviously implementation
+	 * specific. Preferably should a name that is presentable or can
+	 * be used in file names.
+	 */
+	public String getName();
+	
+	
+	/**
+	 * Tells it to load the parameters for the class.
+	 */
+	public void loadParameters();
+}

@@ -1,0 +1,19 @@
+package buttons;
+
+import java.awt.event.ActionEvent;
+
+import views.ToolboxView;
+
+public class ShiftButton extends GameButton {
+
+	int shift;
+	public ShiftButton(ToolboxView tbv, int shift) {
+		super(tbv);
+		this.shift = shift;
+		addActionListener(this); //make itself listen
+	}
+
+	public void actionPerformed(ActionEvent event){
+		toolboxView.shiftPanels(shift);
+	}
+}

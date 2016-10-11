@@ -1,0 +1,39 @@
+package model;
+
+public class Field {
+	Block[][] areaBlocks;
+	
+	/**
+	 * No arg constructor for a field.
+	 * Creates a 50x50 2d array.
+	 * Uses generateField(rand()) to fill it up with Blocks.
+	 */
+	public Field(){
+		areaBlocks = new Block[50][50];
+		generateField(41);
+	}
+	
+	/**
+	 * Generates a terrain based on the seed given. The terrain
+	 * has smoothly varying heights and water sources.
+	 * Call only after areaBlocks has been instantiated.
+	 * 
+	 */
+	private void generateField(int seed){
+		int j=0;
+		for (Block[] col:areaBlocks){ //for every row
+			for (int i=0;i<col.length;i++){ //for every block in row
+				col[i]= new Block(); //make an empty block.
+				if (j%11==0){
+					col[i].setWater(true);
+				}
+				j++;
+			}
+		}
+	}
+
+	public Block[][] getAreaBlocks() {
+		return areaBlocks;
+	}
+
+}

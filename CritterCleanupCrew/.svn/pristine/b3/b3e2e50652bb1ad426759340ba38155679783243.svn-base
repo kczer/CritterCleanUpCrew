@@ -1,0 +1,98 @@
+package settables;
+
+import java.util.Map;
+
+import model.GameState;
+import enitities.Entity;
+import enitities.MonarchButterfly;
+
+public class SweetPepperbush extends Settable {
+	private static Map<String, Double> parameters;
+	private int waterCount; //for counting water from time to time
+	
+	@Override
+	public void loadParameters() {
+		parameters = Settable.loadParameters("data/Sweet Pepperbush.txt");
+	}
+
+	@Override
+	public String getName() {
+		return "Sweet Pepperbush";
+	}
+
+	@Override
+	public int getCycleTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Map<String, Double> getParameters() {
+		if (parameters==null){ //if parameters not loaded
+			loadParameters(); //load them
+		}
+		return parameters;
+	}
+
+	@Override
+	protected Entity chooseSpawnEntity(GameState g) {
+		return new MonarchButterfly(null);
+	}
+	
+	/**
+	 * Updates for the fact that this type of plant prefers water, and so 
+	 * spawns stuff faster.
+	 */
+	protected double getNextSpawnWaitTime(GameState g){
+		double base = (g.getGenerator().nextGaussian())*getParameters().get("SpawnTimeSpread")+ //time spread
+				getParameters().get("SpawnTime"); //figure out when next to spawn, normal time
+		
+		waterCount = waterCount(g); //to keep track of much water is around it
+
+		base /= Math.pow(getParameters().get("WaterProximityEffect"),waterCount); //make it an exponential decrease in time
+		
+		return base;
+	}
+	
+	/**
+	 * Makes taking away hitpoints harder around water (defense mechanism).
+	 */
+	public void setHitPoints(double hp){
+		double hpdif = hitPoints-hp;
+		if (hpdif>0){ //if we're being healed, don't care
+			hitPoints=hp; //just set hp to whatever
+		}
+		else{ //if we're being hit
+			hpdif/=Math.pow(getParameters().get("WaterProximityDefense"), waterCount);//use approximate water effect from last time
+			//scale the hp taking away by an amount
+		}
+		hitPoints-=hpdif;
+	}
+
+	/**
+	 * Tells how much water is directly around the plant
+	 */
+	private int waterCount(GameState g){
+		int waterCount=0;
+		for (int i=-1;i<2;i++){ //check the direct square around the plant
+			for (int j=-1;j<2;j++){
+				try{
+					if(g.getGameField().getAreaBlocks() //the field
+					[position.getIntX()+i][position.getIntY()+j].isWater()){ //the place on it is water
+						waterCount++; //add to the water count.
+					}
+				}
+				catch(ArrayIndexOutOfBoundsException e){ //lazy bounds checking
+					//well we knew it could happen
+				}
+			}
+		}
+		return waterCount;
+	}
+
+	@Override
+	public String getSName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

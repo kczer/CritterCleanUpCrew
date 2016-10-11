@@ -1,0 +1,32 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import enitities.*;
+import model.*;
+import players.*;
+
+public class PlayerTests {
+
+	@Test
+	public void Player_AIPlayer_Test() {
+		AIPlayer p = new AIPlayer();
+		assertTrue(p.equals(null));
+	}
+
+	@Test
+	public void Player_HumanPlayer_Test() {
+		HumanPlayer p = new HumanPlayer(new Game());
+		assertTrue(p.equals(null));
+	}
+
+	@Test
+	public void Player_NetworkPlayer_Test() {
+		NetworkPlayer p = new NetworkPlayer();
+		assertTrue(p.equals(null));
+	}
+
+
+}

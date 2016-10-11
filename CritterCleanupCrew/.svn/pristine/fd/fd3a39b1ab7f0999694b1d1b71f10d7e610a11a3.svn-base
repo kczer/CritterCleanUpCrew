@@ -1,0 +1,51 @@
+package model;
+
+public class Field {
+	Block[][] areaBlocks;
+	private static double waterThreshold=0.4; //below what noise level do we get water.
+	private static int octaves=3; //octaves for noise generation
+	
+	/**
+	 * No arg constructor for a field.
+	 * Creates a 50x50 2d array.
+	 * Uses generateField(rand()) to fill it up with Blocks.
+	 */
+	public Field(){
+		areaBlocks = new Block[50][50];
+		generateField(41);
+	}
+	
+	/**
+	 * Generates a terrain based on the seed given. The terrain
+	 * has smoothly varying heights and water sources.
+	 * Call only after areaBlocks has been instantiated.
+	 * 
+	 */
+	private void generateField(int seed){
+		double[][] noiseField = NoiseGenerator.mapNoise( //map the noise
+				NoiseGenerator.GenerateSmoothNoise( //using smooth noise
+				NoiseGenerator.GenerateWhiteNoise(150, 150), //from white noise
+				octaves), //use 3 octaves
+				octaves);  //and scale of 3
+		
+		for (int col=0;col<areaBlocks.length;col++){
+			for (int row=0;row<areaBlocks[col].length;row++){
+				
+				areaBlocks[col][row] = new Block(); //actually make a block
+				
+				if (noiseField[col][row]<waterThreshold){ //if at water threshold
+					areaBlocks[col][row].setWater(true); //make water
+				}
+				else{
+					areaBlocks[col][row].setElavation(noiseField[col][row]); //else give it noise altitude
+				}
+			}
+		}
+		
+	}
+
+	public Block[][] getAreaBlocks() {
+		return areaBlocks;
+	}
+
+}

@@ -1,0 +1,253 @@
+package views;
+
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+
+
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import buttons.*;
+
+public class ToolboxView extends JPanel {
+	
+	GameView mainView;
+	double bottomPartWeight = 0.15;
+	int buttonNumber=4;
+	int activeTab; //which button is pressed right now
+	Map<String, GameButton> allButtons; //all the buttons which can exist
+	Collection<GameButton>[] buttonPanels;
+
+	public ToolboxView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.BLUE);
+		this.mainView = mainView;
+		setLayout(new GridBagLayout());
+		
+		loadButtons();
+		
+		initializeTopButtons();
+		initializeBottomButtons();
+	}
+	
+//	public void paint(Graphics g){
+//		super.paint(g);
+//		this.
+//	}
+	
+	/**
+	 * Loads all the buttons from the file with button types into the map as well
+	 * as into their respective collections. Also makes the collections
+	 */
+	private void loadButtons(){
+		String fileName = "data/buttonSettings.txt";
+		allButtons = new HashMap<String,GameButton>(); //instantiate the hashmap
+		try {
+			Scanner fin = new Scanner(new File(fileName));
+			int numberOfScans = Integer.parseInt(fin.nextLine()); //get the number of scan by using the full line
+			int location=0; //start from first panel
+			buttonPanels =  (ArrayList<GameButton>[])new ArrayList[numberOfScans]; //FIXME
+			fin.nextLine(); //skip a line
+			
+			//first scan, it's special
+			String line = fin.nextLine();
+			buttonPanels[0] = new ArrayList<GameButton>(); //make the panel array
+			while(!line.equals("")){
+				String[] split = line.split("[ ]"); //split string
+				String name = split[0]; //get the name
+				int panelNum = Integer.parseInt(split[1]); //get the panel number
+				GameButton gb = new BottomButton(this, name, panelNum); //make a button with its settings
+				buttonPanels[0].add(gb); //put it into the bottom collection
+				allButtons.put(name, gb); //put it into the map of all buttons
+				line = fin.nextLine(); //get the next line
+			}
+			
+			location++; //now looking at second panel
+			
+			while(fin.hasNext()){ //while not end of file
+				//fin.nextLine(); //skip a line
+				buttonPanels[location] = new ArrayList<GameButton>(); //make the panel array
+				String className = fin.nextLine(); //get the name of class buttons
+				Class buttonClass = Class.forName(className); //get the class associated with the class name
+				Constructor<GameButton> constructor = buttonClass.getConstructor( //get the constructor
+						Class.forName("views.ToolboxView"),  //with a toolboxview
+						"".getClass()); //and a string parameter
+				line= fin.nextLine(); //get next line with name
+				while (!line.equals("")){ //while it is a meaningful line
+					String buttonName = line; //get the name of the button
+					GameButton theButton = constructor.newInstance(this, buttonName); //finally make a button
+					buttonPanels[location].add(theButton); //put the button into the panel.
+					allButtons.put(buttonName, theButton); //put them into the map of buttons
+					line= fin.nextLine(); //get the next line (for checking)
+				}
+				location++; //now looking at next panel
+			}
+			
+			
+			fin.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	private void initializeTopButtons(){
+		JButton l = new JButton();
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=1-bottomPartWeight;
+		add(l,c);
+		
+		JButton q = new PlantingButton(this, "settables.EnglishIvy");
+		c = new GridBagConstraints();
+		c.gridx=1;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(q,c);
+		
+		JButton w = new PlantingButton(this, "settables.WhiteOak");
+		c = new GridBagConstraints();
+		c.gridx=2;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(w,c);
+		
+		JButton p = new PlantingButton(this, "settables.TrashCan");
+		c = new GridBagConstraints();
+		c.gridx=3;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(p,c);
+		
+		JButton f = new ToolButton(this, "DigUp");
+		c = new GridBagConstraints();
+		c.gridx=4;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=1./buttonNumber;
+		c.weighty=bottomPartWeight;
+		add(f,c);
+		
+		for (int i=5;i<buttonNumber+1;i++){
+			JButton b = new JButton();
+			c = new GridBagConstraints();
+			c.gridx=i;
+			c.gridy=0;
+			c.fill=GridBagConstraints.BOTH;
+			c.weightx=1./buttonNumber;
+			c.weighty=1-bottomPartWeight;
+			add(b,c);
+		}
+		
+		JButton r = new JButton();
+		c = new GridBagConstraints();
+		c.gridx=buttonNumber+1;
+		c.gridy=0;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=1-bottomPartWeight;
+		add(r,c);
+	}
+	
+	private void initializeBottomButtons(){
+		JButton l = new JButton();
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=1;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=bottomPartWeight;
+		add(l,c);
+		
+		
+		for (int i=1;i<buttonNumber+1;i++){
+			JButton b = new BottomButton(this, "Tools", 0);
+			c = new GridBagConstraints();
+			c.gridx=i;
+			c.gridy=1;
+			c.fill=GridBagConstraints.BOTH;
+			c.weightx=1./buttonNumber;
+			c.weighty=bottomPartWeight;
+			add(b,c);
+		}
+	
+		JButton r = new JButton();
+		c = new GridBagConstraints();
+		c.gridx=buttonNumber+1;
+		c.gridy=1;
+		c.fill=GridBagConstraints.BOTH;
+		c.weightx=0.0005;
+		c.weighty=bottomPartWeight;
+		add(r,c);
+	}
+
+	public void setCurrentPanel(int i) {
+		activeTab = i;//TODO
+		
+	}
+	
+	public GameView getMainView(){
+		return mainView;
+	}
+	
+}

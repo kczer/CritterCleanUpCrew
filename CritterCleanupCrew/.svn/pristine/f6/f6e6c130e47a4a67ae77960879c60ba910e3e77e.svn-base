@@ -1,0 +1,250 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+
+
+
+
+
+
+import java.util.Arrays;
+
+import javax.swing.JPanel;
+
+import settables.Settable;
+import enitities.Entity;
+import enitities.PlayerCharacter;
+import model.Actionable;
+import model.Field;
+import model.Position;
+
+public class MinimapView extends JPanel implements ComponentListener{
+	
+	private GameView mainView;
+	
+	private int actionableWidth =4; //how big to make the icons on the minimap
+	private int actionableHeight =4;
+	
+	
+	private int gameWidth; //how big the game itself is
+	private int gameHeight;
+	
+	private int viewHeight;
+	private int viewWidth;
+	
+	public MinimapView(GameView mainView){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.YELLOW);
+		this.mainView = mainView;
+		
+		gameWidth = mainView.getCurrentGame().getState().getGameField().getAreaBlocks().length;
+		gameHeight = mainView.getCurrentGame().getState().getGameField().getAreaBlocks()[0].length;
+		addComponentListener(this);
+		//Graphics copy = mainView.initViews().subviews.get("Interaction", new InteractionView(this));
+	}
+	
+	public void paint(Graphics g){
+		super.paint(g);
+		paintMap(g);
+		paintEntities(g);
+		paintPlants(g);
+		paintCharacters(g);
+		paintViewRect(g);
+	}
+
+	public void paintMap(Graphics g)
+	{
+		Field world = mainView.getCurrentGame().getState().getGameField();
+		
+		g.setColor(new Color(139,69,19)); //brown
+		g.fillRect(0, 0, //make the background brown for dirt
+				viewWidth, viewHeight);
+		
+		boolean elevation = true;
+		
+		//draw water
+		
+		g.setColor(Color.BLUE);
+		double xDim = 1.*viewWidth/gameWidth;
+		double yDim = 1.*viewHeight/gameHeight;
+		for (int col=0;col<world.getAreaBlocks().length;col++){
+			for (int row=0;row<world.getAreaBlocks()[col].length;row++){
+				if (elevation){ //if elevation, adjust the color
+					Color c;
+					if (world.getAreaBlocks()[col][row].isWater()){ //for water
+						c = new Color(0, //no red
+								(int)(70*world.getAreaBlocks()[col][row].getElavation()), //some green, more in shallow
+								(int)(200*(1-world.getAreaBlocks()[col][row].getElavation()))); //more blue, more in deeper
+					}else{ //for dirt
+						c = new Color((int)(200*world.getAreaBlocks()[col][row].getElavation()),70,0); //shade of brown
+					}
+					g.setColor(c);
+					
+					g.fillRect((int)Math.round(xDim*col), (int)Math.round(yDim*row),
+							(int)Math.round(xDim+0.5), (int)Math.round(yDim+0.5));
+				}else{
+					if (world.getAreaBlocks()[col][row].isWater()){
+						g.fillRect((int)Math.round(xDim*col), (int)Math.round(yDim*row),
+								(int)Math.round(xDim+0.5), (int)Math.round(yDim+0.5));
+					}
+				}
+			}
+		}
+		
+		
+		
+		
+	}
+	
+	private void paintEntities(Graphics g){
+		double shiftX=1.*viewWidth/gameWidth/2; //by how much to shift each dot
+		double shiftY= 1.*viewHeight/gameHeight/2; //to get a good, centered image
+		
+		for (Entity i : mainView.getCurrentGame().getState().getEntities()){
+			if (i.isFriendly()){ //if it's friendly, draw one thing
+				g.setColor(Color.GREEN);
+			}
+			else{ //else draw another
+				g.setColor(Color.RED);
+			}
+			Position p= i.getPosition();
+			int xdraw = (int)((p.getX())/gameWidth*viewWidth-shiftX);
+			int ydraw = (int)((p.getY())/gameHeight*viewHeight-shiftY);
+			g.fillOval(xdraw, ydraw, actionableWidth, actionableHeight);
+		}
+	}
+	
+	private void paintPlants(Graphics g){
+		double shiftX= 1.*actionableWidth/2; //by how much to shift each dot
+		double shiftY= 1.*actionableHeight/2; //to get a good, centered image
+		
+		for (Settable i : mainView.getCurrentGame().getState().getPlants()){
+			if (i.getParameters().get("Friendly")==1){//if it's friendly
+				g.setColor(Color.CYAN); //use one color
+			}
+			else{ //else it's an enemy
+				g.setColor(Color.MAGENTA); //use another color
+			}
+			Position p= i.getPosition();
+			int xdraw = (int)((p.getX())/gameWidth*viewWidth-shiftX);
+			int ydraw = (int)((p.getY())/gameHeight*viewHeight-shiftY);
+			
+			g.fillOval(xdraw, ydraw, actionableWidth, actionableHeight);
+		}
+	}
+	
+	private void paintCharacters(Graphics g){
+		double shiftX=1.*viewWidth/gameWidth/2; //by how much to shift each dot
+		double shiftY= 1.*viewHeight/gameHeight/2; //to get a good, centered image
+		
+		for (String name : mainView.getCurrentGame().getState().getPlayerCharacters().keySet()){
+			PlayerCharacter i = mainView.getCurrentGame().getState().getPlayerCharacters().get(name);
+			Position p= i.getPosition();
+			int xdraw = (int)((p.getX())/gameWidth*viewWidth-shiftX);
+			int ydraw = (int)((p.getY())/gameHeight*viewHeight-shiftY);
+			g.setColor(Color.BLACK);
+			g.fillOval(xdraw, ydraw, actionableWidth, actionableHeight);
+		}
+	}
+	
+	/**
+	 * Paints the rectangle which is currently seen in the interaction view.
+	 * 
+	 */
+	private void paintViewRect(Graphics g) {
+		InteractionView iv = (InteractionView) mainView.getSubviews().get("Interaction");
+		
+		int xSize = mainView.getCurrentGame().getState().getGameField().getAreaBlocks().length;
+		int ySize = mainView.getCurrentGame().getState().getGameField().getAreaBlocks()[0].length;
+		
+		double xDim = 1.*viewWidth/gameWidth;
+		double yDim = 1.*viewHeight/gameHeight;
+		
+		if (iv.isIso){
+			//points go counterclockwise from top left
+			//using double to not lose precision
+			double[] tempX = new double[]{iv.getOverHeadOffsetX(), iv.getOverHeadOffsetX(), //get left two points x
+									iv.getOverHeadOffsetX()+iv.getWidth(), //get right tow points x
+									iv.getOverHeadOffsetX()+iv.getWidth()};
+			double[] tempY = new double[]{
+					iv.getOverHeadOffsetY(), //get left top
+					iv.getOverHeadOffsetY()+iv.getHeight(), //get left bottom
+					iv.getOverHeadOffsetY()+iv.getHeight(), //get right bottom
+					iv.getOverHeadOffsetY()}; //get left top
+			int[] pointsX=new int[4]; //xs for drawing
+			int[] pointsY=new int[4]; //ys for drawing 
+			
+			
+			for (int i=0;i<4;i++){ //for every points
+				pointsX[i] = (int)(xDim*iv.isoToI(tempX[i], tempY[i])); //calculate the x point
+				pointsY[i] = (int)(yDim*iv.isoToJ(tempX[i], tempY[i])); //calculate the y point		
+			}
+			
+			g.setColor(Color.BLACK); //set black color
+			g.drawPolygon(pointsX, pointsY, 4);
+			
+		}
+		else{
+			
+			double sizeX = 1.*iv.tileWidth/xSize* //fraction
+				 	viewWidth;//total size
+
+			double sizeY = 1.*iv.tileHeight/ySize* //fractions
+							viewHeight; //total size
+		
+			double offX = iv.getOverHeadOffsetX()/ //how much moved
+							(xSize*iv.imgWidth)* //total possible;
+							viewWidth; //this view size
+			double offY = iv.getOverHeadOffsetY()/ //how much moved
+						(ySize*iv.imgHeight)* //total possible;
+						viewHeight; //this view size
+			
+			g.setColor(Color.BLACK);
+			g.drawRect((int)offX, (int)offY, (int)sizeX, (int)sizeY);
+		}
+	}
+	
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		viewHeight = getHeight();
+		viewWidth = getWidth();
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	/*
+	 * ignore these
+	 * 
+	public void InteractionViewToWorld(Graphics interactionView, Field fullMap)
+	{
+	    w[0] = v[0] + this.viewOrigin[0];
+	    w[1] = v[1] + this.viewOrigin[1];
+	}
+	public void WorldToMinimap(Field fullMap, Graphics minimap)
+	{
+	}
+	public void MinimapToWorld(Graphics minimap, Field fullMap)
+	{
+	}
+	*/
+
+}

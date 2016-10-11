@@ -1,0 +1,76 @@
+package enitities;
+
+import java.util.Map;
+
+import model.Actionable;
+import model.GameState;
+import model.Position;
+
+public class Catterpillar extends Entity{
+	protected static Map<String, Double> parameters;
+	
+	public Catterpillar(Position p){
+		if (parameters==null){ //if weren't loaded, load.
+			parameters=Entity.loadParameters("data/Catterpillar.txt");
+		}
+		friendly = true; //it's friendly.
+		position=p;
+		target=null;
+		hitPoints = parameters.get("MaxHP");
+	}
+	@Override
+	public boolean doAction(GameState g) {
+
+		if (target==null||target.getHitPoints()<0){ //if target is dead or have no target
+			double distance=Double.MAX_VALUE; //closest yet
+			for (Entity cur: g.getEntities()){ //searches only over entities
+				if (cur!=this){ //if this isn't itself
+					double d = position.distanceTo(cur.getPosition());
+					if (d<distance&&!cur.isFriendly()){
+						d=distance;
+						target= cur;
+					}
+				}
+			}
+		}
+		else if (getPosition().distanceTo(target.getPosition())<parameters.get("Range")){//else check if range of target
+			double damage = parameters.get("BaseDamage")+parameters.get("DamageSpread");
+			target.setHitPoints(target.getHitPoints()-damage);
+		}
+		else{ //else move to target
+			double motionX= position.getUnitXComponent(target.getPosition())* //direction 
+					parameters.get("Speed"); //speed
+			double motionY=position.getUnitYComponent(target.getPosition())* //direction 
+					parameters.get("Speed"); //speed
+					
+			
+					
+			if (g.getGameField().getAreaBlocks()[position.getIntX()][position.getIntY()].isWater()){ //if is in water
+				motionX*=parameters.get("WaterModifier"); //change speed
+				motionY*=parameters.get("WaterModifier");
+			}
+			double newX = position.getX()+motionX;
+			double newY = position.getY()+motionY; //old
+			Position newPos = new Position(newX, newY);
+			position= newPos;
+		}
+		return true;
+	}
+
+	@Override
+	public String getName() {
+		return "Catterpillar";
+	}
+	
+	@Override
+	public boolean forceAction(GameState g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	public String toString(){
+		return "Catterpillar at "+position.toString();
+	}
+
+
+}

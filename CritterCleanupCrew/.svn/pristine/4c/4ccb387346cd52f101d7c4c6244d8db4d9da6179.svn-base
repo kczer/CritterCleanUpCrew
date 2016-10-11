@@ -1,0 +1,9 @@
+Cost 100
+SpawnTime 20
+SpawnTimeSpread 5
+SpawnLocSpread 2
+Happiness 0.01
+MaxHP 10
+Native 0
+DigUpMoney 50
+Friendly 1

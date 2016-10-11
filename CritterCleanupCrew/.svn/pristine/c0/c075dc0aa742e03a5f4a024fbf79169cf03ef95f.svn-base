@@ -1,0 +1,283 @@
+package views;
+
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Collection;
+
+import javax.swing.JFrame;
+import javax.swing.Timer;
+
+import settables.TrashCan;
+import enitities.Entity;
+import enitities.Gnome;
+import model.Game;
+import model.Position;
+import moves.PlacingMove;
+
+public class GameFrameView extends JFrame implements KeyListener {
+
+	final static String MAINMENUPANEL = "Main Menu";
+	final static String GAMEVIEWPANEL = "GameView";
+	final static String GAMEPANEL = "Main Game Menu";
+	final static String HIGHSCOREPANEL = "HighScore Menu";
+	final static String STORY1PANEL = "Story Panel 1";
+	final static String STORY2PANEL = "Story Panel 2";
+	final static String MULTIPLAYERPANEL = "Multiplayer Lobby";
+	final static String HIGHSCHORE = "Highscores";
+	
+	static String CURRENTPANEL = MAINMENUPANEL;
+
+	static MainMenuView mainMenuPanel;
+	static GameView gameViewPanel;
+	static TimeView timeDisplay;
+	static StoryPanelView1 story1View;
+	static StoryPanelView2 story2View;
+	static MultiplayerView multiplayerView;
+	static HighScoreView highscoreView;
+
+	public static GameView getGamePlayPanel() {
+		return gameViewPanel;
+	}
+
+	public static void setGamePlayPanel(GameView GamePlayPanel) {
+		GameFrameView.gameViewPanel = GamePlayPanel;
+	}
+
+	CardLayout cardLayout;
+
+	/*
+	 * GameThread thread;
+	 */
+
+	public GameFrameView() {
+		setTitle("Critter Clean Up Crew");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(1000, 700);
+
+		cardLayout = new CardLayout();
+		setLayout(cardLayout);
+
+		mainMenuPanel = new MainMenuView();
+		gameViewPanel = new GameView();
+		story1View = new StoryPanelView1();
+		story2View = new StoryPanelView2();
+		multiplayerView = new MultiplayerView();
+		highscoreView = new HighScoreView();
+
+		add(mainMenuPanel, MAINMENUPANEL);
+		add(gameViewPanel, GAMEVIEWPANEL);
+		add(story1View, STORY1PANEL);
+		add(story2View, STORY2PANEL);
+		add(multiplayerView, MULTIPLAYERPANEL);
+		add(highscoreView, HIGHSCOREPANEL);
+
+		mainMenuPanel.startGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), STORY1PANEL);
+				CURRENTPANEL = STORY1PANEL;
+				story1View.requestFocusInWindow();
+				story1View.repaint();
+
+	}
+		}
+		);
+		
+		mainMenuPanel.exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+
+	}
+		}
+		);
+		mainMenuPanel.highscores.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), HIGHSCOREPANEL);
+				CURRENTPANEL = HIGHSCOREPANEL;
+				highscoreView.requestFocusInWindow();
+				highscoreView.repaint();
+
+	}
+		}
+		);
+		
+		highscoreView.mainMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), MAINMENUPANEL);
+				CURRENTPANEL = MAINMENUPANEL;
+				mainMenuPanel.requestFocusInWindow();
+				mainMenuPanel.repaint();
+
+	}
+		}
+		);
+		mainMenuPanel.multiplayer.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), MULTIPLAYERPANEL);
+				CURRENTPANEL = MULTIPLAYERPANEL;
+				multiplayerView.requestFocusInWindow();
+				multiplayerView.repaint();
+
+	}
+		}
+		);
+		
+		multiplayerView.previousPanel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), MAINMENUPANEL);
+				CURRENTPANEL = MAINMENUPANEL;
+				mainMenuPanel.requestFocusInWindow();
+				mainMenuPanel.repaint();
+
+	}
+		}
+		);
+		
+		story1View.nextPanel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), STORY2PANEL);
+				CURRENTPANEL = STORY2PANEL;
+				story2View.requestFocusInWindow();
+				story2View.repaint();
+
+	}
+		}
+		);
+		
+		
+		
+		story1View.previousPanel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), MAINMENUPANEL);
+				CURRENTPANEL = MAINMENUPANEL;
+				mainMenuPanel.requestFocusInWindow();
+				mainMenuPanel.repaint();
+
+	}
+		}
+		);
+		
+		story1View.skipToGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), GAMEVIEWPANEL);
+				CURRENTPANEL = GAMEVIEWPANEL;
+				gameViewPanel.requestFocusInWindow();
+				gameViewPanel.repaint();
+				long nextTick;
+				Timer t = new Timer((int) (nextTick = gameViewPanel
+						.getCurrentGame().tickSpeed()) / 1,
+						new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+ 								gameViewPanel.getCurrentGame().tick();
+								gameViewPanel.repaint();
+							}
+
+						});
+				t.start();
+			}
+		}
+	
+		);
+		
+		story2View.nextPanel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), GAMEVIEWPANEL);
+				CURRENTPANEL = GAMEVIEWPANEL;
+				gameViewPanel.requestFocusInWindow();
+				gameViewPanel.repaint();
+				long nextTick;
+				Timer t = new Timer((int) (nextTick = gameViewPanel
+						.getCurrentGame().tickSpeed()) / 1,
+						new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+ 								gameViewPanel.getCurrentGame().tick();
+								gameViewPanel.repaint();
+							}
+
+						});
+				t.start();
+			}
+		}
+		);
+		
+		story2View.previousPanel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), STORY1PANEL);
+				CURRENTPANEL = STORY1PANEL;
+				story1View.requestFocusInWindow();
+				story1View.repaint();
+
+	}
+		}
+		);
+		setVisible(true);
+	}
+		
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}}
+
+				
+
+			/*@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cardLayout.show(getContentPane(), GAMEVIEWPANEL);
+				CURRENTPANEL = GAMEVIEWPANEL;
+				gameViewPanel.requestFocusInWindow();
+				gameViewPanel.repaint();
+				long nextTick;
+				Timer t = new Timer((int) (nextTick = gameViewPanel
+						.getCurrentGame().tickSpeed()) / 1,
+						new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+ 								gameViewPanel.getCurrentGame().tick();
+								gameViewPanel.repaint();
+							}
+
+						});
+				t.start();
+			}
+		}
+		);
+
+		// adding all of the sub-panels to the frame with their tags
+		setVisible(true);
+	*/
+//we use this to run the game under a listener, we need the game state to tick otherwise the screen will just pop up with no actions or movement.
+
+	

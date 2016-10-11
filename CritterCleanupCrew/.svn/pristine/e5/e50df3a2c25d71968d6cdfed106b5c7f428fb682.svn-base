@@ -1,0 +1,99 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Graphics;
+
+
+
+
+
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+
+import javax.swing.JPanel;
+
+import model.Actionable;
+
+public class InformationView extends JPanel implements ComponentListener{
+	GameView mainView;
+	Actionable shownActionable;
+	int viewHeight;
+	int viewWidth;
+	/**
+	 * Constructor for the InformationView.
+	 * Currently sets the background color to Green.
+	 * Sets Opacity to true.
+	 * Sets the gameview to which it is attached.
+	 */
+	public InformationView(GameView g){
+		super();
+		this.setOpaque(true);
+		this.setBackground(Color.YELLOW);
+		mainView = g;
+		addComponentListener(this); //make itself listen to itself
+	}
+	
+	/**The picture is general for all actionables,
+	 * specific information is dependent on the type of the 
+	 * Actionable. Plants could have cash data, while entities
+	 * could have damage data and so forth.
+	 */ 
+	public void paint(Graphics g){
+		super.paint(g);
+		if (shownActionable==null){
+			paintBlankScreen(g);
+		}
+		else { //do some tests and real painting
+			//TODO
+			System.out.println("HERE!");
+			g.drawImage(mainView.getImages().get(shownActionable.getName()), //image
+					0,0, //position
+					viewWidth, viewHeight, //size
+					null); //observer
+		}
+	}
+
+	/**
+	 * Paints the blank bacground for the information view. 
+	 * Is probably a bit more exciting than one color.
+	 */
+	private void paintBlankScreen(Graphics g) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Specifies the information about which actionable should be
+	 * shown on this view. Will print out that information on the 
+	 * next tick.
+	 */
+	public void setShownActionable(Actionable clicked) {
+		shownActionable = clicked;
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		viewHeight = getHeight();
+		viewWidth = getWidth();
+	}
+
+	
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

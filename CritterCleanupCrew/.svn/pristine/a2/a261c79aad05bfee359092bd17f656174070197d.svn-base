@@ -1,0 +1,119 @@
+package players;
+
+
+
+
+
+
+import enitities.PlayerCharacter;
+import model.Game;
+import model.GameState;
+import model.Position;
+import moves.AttackMove;
+import moves.MotionMove;
+import moves.Move;
+
+public class HumanPlayer implements Player{
+	protected Move targetMove; //main targeted move.
+	protected PlayerCharacter underControl;
+	protected Game game;
+	
+	public HumanPlayer(Game playedGame){ //should at least know the game it's playing
+		game = playedGame;
+	}
+	
+	public HumanPlayer(Game playedGame, PlayerCharacter controlled){ //should at least know the game it's playing, who it's controlling
+		game = playedGame;
+		underControl = controlled;
+	}
+
+	/**
+	 * Returns move by using inputs from the user.
+	 */
+	public Move getNextMove(GameState gameState) {
+		if (targetMove instanceof AttackMove){ //if we need to attack
+			return attackingMove((AttackMove)targetMove, gameState);
+		}
+		else if (targetMove instanceof MotionMove){ //if we need to move
+			Position targetPos = ((MotionMove) targetMove).getPosition();
+			if (targetPos.distanceTo(underControl.getPosition())>0.1){ //if far enough (to not jitter back and forth
+				return getMotionMove(targetPos, gameState); //move incrementally to position
+			}else{
+				targetMove = null; //close enough, stop targeting
+				return null;
+			}
+		}
+		return null; //nothing else
+	}
+
+	/**
+	 * Username.
+	 */
+	public String getID() {
+		return null;
+	}
+
+	@Override
+	public void setNextMove(Move nextMove) {
+		targetMove = nextMove; //set new target
+	}
+
+	@Override
+	public String getPlayerCharacterControlled() {
+		return underControl.getName();
+	}
+
+	@Override
+	public boolean setPlayerCharacterToControl(String nameOfCharacter) {
+		underControl = game.getState().getPlayerCharacters().get(nameOfCharacter);
+		return true;
+	}
+	
+	/**
+	 * Make the incrementally small move to move to the targetted position.
+	 */
+	protected MotionMove getMotionMove(Position targetPos, GameState g){
+		int x=underControl.getPosition().getIntX();
+		int y=underControl.getPosition().getIntY();
+		double motionDistance = underControl.getParameters().get("Speed")*
+				game.tickSpeed()/1000* //how far can we move in a single turn
+				(g.getGameField().getAreaBlocks()[x][y].isWater()? //if in water
+					underControl.getParameters().get("WaterModifier"):1); //slow us down
+		
+		double unitX = underControl.getPosition().getUnitXComponent(targetPos); //unit vectors to there
+		double unitY = underControl.getPosition().getUnitYComponent(targetPos);
+		Position next = new Position(underControl.getPosition().getX()+unitX*motionDistance, //move up first increment
+									 underControl.getPosition().getY()+unitY*motionDistance);
+		return new MotionMove(next, underControl); //make a move to go there
+		
+	}
+	
+	/**
+	 * Returns what move should be executed it we where to 
+	 * attack using the given move. Moves closer to the target
+	 * if out of attack range, or gives an actual attacking move
+	 * if in range. If it gives an attacking move- it nullifies
+	 * the target move for the player character.
+	 */
+	protected Move attackingMove(AttackMove tmove, GameState g) {
+		double range = tmove.getAttackingWeapon().getParameters().get("Range");
+		Position target = tmove.getTarget().getPosition();
+		if (tmove.getTarget().getHitPoints()<=0){
+			targetMove = null; //nullify target
+			return null;
+		}
+		if (underControl.getPosition().distanceTo(target)<range){ //if in range
+			targetMove = null; //nullify target
+			return tmove; //return this attack
+		}
+		else{ //if out of range
+			return getMotionMove(target, g);
+		}
+	}
+
+	@Override
+	public Move getTargetMove() {
+		return targetMove;
+	}
+
+}

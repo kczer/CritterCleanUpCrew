@@ -1,0 +1,86 @@
+package enitities;
+
+import java.util.Map;
+
+import settables.Settable;
+import settables.TrashCan;
+import model.GameState;
+import model.Position;
+
+public class Gnome extends Entity{
+	
+	protected static Map<String, Double> parameters;
+	
+	
+	public Gnome(Position p){
+		if (parameters==null){ //if weren't loaded, load.
+			parameters=Entity.loadParameters("data/Gnome.txt");
+		}
+		friendly = false; //it's an enemy
+		position=p;
+		hitPoints = parameters.get("MaxHP");
+	}
+
+	public boolean doAction(GameState g) {
+		if (target==null||target.getHitPoints()<0){ //if target is dead or have no target
+			double distance=Double.MAX_VALUE; //closest yet
+			for (Entity cur: g.getEntities()){ //searches over entities
+				if (cur!=this){ //if this isn't itself
+					double d = position.distanceTo(cur.getPosition());
+					if (d<distance&&cur.isFriendly()){
+						d=distance;
+						target= cur;
+					}
+				}
+			}
+			
+			for (Settable cur: g.getPlants()){ //searches over plants
+				double d = position.distanceTo(cur.getPosition());
+				
+				if (d<distance&&!(cur instanceof TrashCan)){
+					d=distance;
+					target= cur;
+				}
+			}
+		}
+		else if (getPosition().distanceTo(target.getPosition())<parameters.get("Range")){//else check if range of target
+			double damage = parameters.get("BaseDamage")+parameters.get("DamageSpread");
+			target.setHitPoints(target.getHitPoints()-damage);
+		}
+		else{ //else move to target
+			double motionX= position.getUnitXComponent(target.getPosition())* //direction 
+					parameters.get("Speed"); //speed
+			double motionY=position.getUnitYComponent(target.getPosition())* //direction 
+					parameters.get("Speed"); //speed
+					
+			
+					
+			if (g.getGameField().getAreaBlocks()[position.getIntX()][position.getIntY()].isWater()){ //if is in water
+				motionX*=parameters.get("WaterModifier"); //change speed
+				motionY*=parameters.get("WaterModifier");
+			}
+			double newX = position.getX()+motionX;
+			double newY = position.getY()+motionY; //old
+			Position newPos = new Position(newX, newY);
+			position= newPos;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean forceAction(GameState g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getName() {
+		return "Gnome";
+	}
+	
+	public String toString(){
+		return "Gnome at "+position.toString();
+	}
+
+
+}

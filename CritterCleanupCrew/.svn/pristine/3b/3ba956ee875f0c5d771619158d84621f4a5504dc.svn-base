@@ -1,0 +1,78 @@
+package views;
+
+import java.awt.CardLayout;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JFrame;
+
+import model.Game;
+
+public class GameFrameView extends JFrame {
+
+	final static String MAINMENUPANEL = "Main Menu";
+	final static String GAMEPANEL = "Main Game Menu";
+
+	static String CURRENTPANEL = MAINMENUPANEL;
+
+	MainMenuView MainMenuPanel;
+	static GameView GamePlayPanel;
+
+	public static GameView getGamePlayPanel() {
+		return GamePlayPanel;
+	}
+
+	public static void setGamePlayPanel(GameView GamePlayPanel) {
+		GameFrameView.GamePlayPanel = GamePlayPanel;
+	}
+
+	CardLayout cardLayout;
+
+	/*
+	 * GameThread thread;
+	 */
+
+	public GameFrameView() {
+		setTitle("Critter Clean Up Crew");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+		MainMenuPanel = new MainMenuView();
+
+		GamePlayPanel = new GameView();
+
+		/* GamePlayPanel.addKeyListener(this); */
+
+		cardLayout = new CardLayout();
+		setLayout(cardLayout);
+
+		// adding all of the sub-panels to the frame with their tags
+		add(MainMenuPanel, MAINMENUPANEL);
+		add(GamePlayPanel, GAMEPANEL);
+
+		MouseAdapter ma = new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				/* String newItem = null; */
+				for (String text : MainMenuPanel.menuItems) {
+					if (text.equals("Start Game")) {
+						/*
+						 * newItem = text; break;
+						 */
+						cardLayout.show(getContentPane(), GAMEPANEL);
+						CURRENTPANEL = GAMEPANEL;
+						Game currentGame = new Game();
+						// GameView mainView = new GameView();
+					}
+				}
+
+			}
+		};
+
+		setVisible(true);
+	}
+}
